@@ -25,6 +25,10 @@ select{padding:6px 8px;border:1px solid #aeb5c2;border-radius:6px;background:#ff
 button{padding:7px 14px;border-radius:6px;border:1px solid #aeb5c2;background:#fff;cursor:pointer;color:var(--ink)}
 button.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
 button:disabled,select:disabled{opacity:.45;cursor:not-allowed}
+a.btnlink{display:inline-block;padding:7px 14px;border-radius:6px;border:1px solid #2b56c6;background:#eef3fd;color:#1f3f96;
+  font-size:.95rem;font-weight:600;text-decoration:none;line-height:1.45}
+a.btnlink:hover{background:#dfe8fb}
+a.btnlink:focus-visible{outline:3px solid #f0b400;outline-offset:2px}
 button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #f0b400;outline-offset:2px}
 .toggles{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.88rem;margin-top:10px;color:var(--muted);align-items:center}
 .toggles label{display:flex;align-items:center;gap:5px;cursor:pointer}
@@ -113,6 +117,8 @@ th{background:#f0f2f6}
     <button id="btnInW" class="primary">③ Alles in Spritze ① geben</button>
     <button id="btnInB" class="primary">③ Alles in Spritze ② geben</button>
     <button id="btnReset">↺ Zurücksetzen</button>
+    <a id="btnAB" class="btnlink" href="Arbeitsblatt_Loeslichkeit.pdf" target="_blank" rel="noopener"
+       title="Arbeitsblatt zur Simulation öffnen (PDF zum Ausfüllen mit Tastatur oder Stift)">📄 Arbeitsblatt</a>
   </div>
   <div class="toggles">
     <label><input type="checkbox" id="optPred"> Vorhersagemodus</label>
