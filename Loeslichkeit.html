@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Löslichkeit organischer Stoffe – erstellt von Markus Seitz</title>
+<style>
+:root{
+  --bg:#f3f4f7; --card:#ffffff; --ink:#1c2230; --muted:#566074; --line:#d7dbe3;
+  --accent:#2b56c6; --hb:#1d5fd0; --dip:#c96200; --vdw:#6e737d; --stoff:#7b3fc4;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:16px;line-height:1.45}
+header{background:var(--card);border-bottom:1px solid var(--line);padding:14px 22px}
+h1{font-size:1.35rem;margin:0}
+.titel{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 16px;margin:0 0 10px}
+h1 .autor{font-weight:400;font-size:1rem;color:var(--muted)}
+.sub{color:var(--muted);margin:0;font-size:.88rem}
+h2{font-size:1.08rem;margin:0 0 8px}
+h3{font-size:.98rem;margin:0 0 6px}
+.controls{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-end}
+.controls label.sel{display:flex;flex-direction:column;font-size:.8rem;color:var(--muted);gap:3px;font-weight:600}
+select,button{font:inherit;font-size:.95rem}
+select{padding:6px 8px;border:1px solid #aeb5c2;border-radius:6px;background:#fff;min-width:180px;color:var(--ink)}
+button{padding:7px 14px;border-radius:6px;border:1px solid #aeb5c2;background:#fff;cursor:pointer;color:var(--ink)}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+button:disabled,select:disabled{opacity:.45;cursor:not-allowed}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #f0b400;outline-offset:2px}
+.toggles{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.88rem;margin-top:10px;color:var(--muted);align-items:center}
+.toggles label{display:flex;align-items:center;gap:5px;cursor:pointer}
+#predRow{margin-top:10px;padding:8px 12px;background:#fff8e1;border:1px solid #f0d58a;border-radius:8px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;font-size:.92rem}
+#predRow[hidden]{display:none}
+#predRow select{min-width:150px}
+main{padding:12px 22px;display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:1500px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;min-width:0}
+.wide{grid-column:1/-1}
+.syr-labels{display:flex;justify-content:space-around;font-weight:700;font-size:.95rem}
+#syr{width:100%;height:auto;display:block}
+.note{font-size:.78rem;color:var(--muted);margin:4px 0 0;line-height:1.3}
+.win[hidden]{display:none}
+.top{grid-column:1/-1;display:flex;justify-content:center}
+#realCard{flex:0 1 560px;min-width:300px}
+/* Teilchenebene als Vollbild-Ebene, die von unten hereinfährt */
+#teilCard{position:fixed;inset:0;z-index:100;background:var(--bg);display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,360px);
+  grid-template-rows:auto minmax(0,1fr);gap:12px 16px;padding:14px 20px;transform:translateY(100%);visibility:hidden;
+  transition:transform .5s cubic-bezier(.2,.8,.2,1),visibility 0s linear .5s}
+#teilCard.offen{transform:none;visibility:visible;transition:transform .5s cubic-bezier(.2,.8,.2,1),visibility 0s}
+.ov-head{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.ov-head h2{margin:0;font-size:1.3rem}
+.ov-btns{display:flex;gap:8px;flex-wrap:wrap}
+button.sw[aria-pressed="true"]{background:#e3ebfb;border-color:var(--accent);font-weight:600}
+#teilFenster{min-height:0;min-width:0;display:flex;gap:14px;justify-content:center;align-items:center}
+#teilFenster .win{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.cvwrap{position:relative}
+.cvwrap .infobox{position:absolute;left:8px;right:8px;bottom:8px;margin:0;box-shadow:0 4px 14px rgba(0,0,0,.18);max-height:60%;overflow:auto}
+.ov-legende{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 16px;overflow:auto;min-height:0}
+.legend2{display:flex;flex-direction:column;gap:4px}
+.lrow{display:grid;grid-template-columns:20px 70px 1fr;gap:8px;align-items:center;font-size:.9rem;padding:5px 4px;border-radius:6px}
+label.lrow{cursor:pointer}
+label.lrow:hover{background:#f3f5f9}
+.ov-legende .tip:hover::after,.ov-legende .tip:focus::after{left:auto;right:-40px}
+body.ov-offen{overflow:hidden}
+@media (max-width:900px){ #teilCard{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr) auto} .ov-legende{max-height:38vh} #teilFenster{flex-direction:column} }
+#hReal{margin-bottom:2px}
+.lupen-tipp{font-size:.85rem;color:var(--muted);margin:0 0 6px}
+button.zu{padding:3px 9px;font-size:.85rem}
+#syr .lupe{cursor:pointer}
+.win-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;gap:8px}
+.win-head strong{font-size:.95rem}
+.win canvas{width:100%;max-width:100%;margin:0 auto;aspect-ratio:440/300;display:block;border:2px solid #2a3140;border-radius:10px;background:#fff}
+button.info{padding:3px 10px;font-size:.85rem}
+.infobox{margin-top:6px;padding:8px 10px;background:#eef3fd;border-left:4px solid var(--accent);border-radius:4px;font-size:.9rem}
+.infobox[hidden]{display:none}
+#steckbrief{font-size:.92rem;color:var(--muted);margin:0 0 8px}
+#status{margin:0 0 10px;font-weight:600}
+.erg-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.erg-grid > div{background:#fafbfc;border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.obs{font-weight:600}
+.kombi{margin-top:14px;background:#f4f0fb;border:1px solid #d6c9ef;border-radius:8px;padding:10px 12px}
+.kombi[hidden]{display:none}
+.fb-ok{color:#1b6b2a;font-weight:600}
+.fb-no{color:#a3201a;font-weight:600}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.legend{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;align-items:center;font-size:.9rem}
+.legend svg{display:block}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{border-bottom:1px solid var(--line);padding:5px 8px;text-align:left}
+th{background:#f0f2f6}
+.merk{background:#eef8ef;border:1px solid #b9dcbf}
+.merk p{margin:.3em 0}
+#chart svg{width:100%;height:auto;display:block}
+.row-btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.tip{position:relative;cursor:help;border-bottom:1.5px dotted currentColor}
+.tip:hover::after,.tip:focus::after{content:attr(data-tip);position:absolute;left:0;top:calc(100% + 6px);z-index:50;
+  background:#1c2230;color:#fff;padding:7px 10px;border-radius:6px;font-size:.84rem;font-weight:400;line-height:1.35;
+  width:max-content;max-width:280px;white-space:normal;box-shadow:0 4px 14px rgba(0,0,0,.25);pointer-events:none}
+.tip:hover::before,.tip:focus::before{content:"";position:absolute;left:12px;top:calc(100% + 1px);z-index:50;
+  border:5px solid transparent;border-bottom-color:#1c2230;pointer-events:none}
+@media (max-width:950px){ main{grid-template-columns:1fr} .erg-grid,.two{grid-template-columns:1fr} #realCard{flex-basis:100%} }
+</style>
+</head>
+<body>
+<header>
+  <div class="titel">
+    <h1>Löslichkeit organischer Stoffe <span class="autor">erstellt von Markus Seitz</span></h1>
+    <p class="sub">Stoff- und Teilchenebene im Vergleich: Stoffe zu Wasser und Benzin geben, schütteln und mit der Lupe die Teilchenebene untersuchen.</p>
+  </div>
+  <div class="controls">
+    <label class="sel">Stoffklasse<select id="selKlasse"></select></label>
+    <label class="sel">Stoff<select id="selStoff"></select></label>
+    <button id="btnZu" class="primary">① Zugeben</button>
+    <button id="btnSch" class="primary">② Schütteln</button>
+    <button id="btnInW" class="primary">③ Alles in Spritze ① geben</button>
+    <button id="btnInB" class="primary">③ Alles in Spritze ② geben</button>
+    <button id="btnReset">↺ Zurücksetzen</button>
+  </div>
+  <div class="toggles">
+    <label><input type="checkbox" id="optPred"> Vorhersagemodus</label>
+  </div>
+  <div id="predRow" hidden>
+    <strong>Deine Vorhersage:</strong>
+    <label>Wasser: <select id="predW"><option value="">– bitte wählen –</option><option value="misch">mischbar</option><option value="begrenzt">begrenzt löslich</option><option value="nicht">nicht mischbar</option></select></label>
+    <label>Benzin: <select id="predB"><option value="">– bitte wählen –</option><option value="misch">mischbar</option><option value="begrenzt">begrenzt löslich</option><option value="nicht">nicht mischbar</option></select></label>
+  </div>
+</header>
+
+<main>
+  <div class="top">
+  <section class="card" id="realCard" aria-labelledby="hReal">
+    <h2 id="hReal">Realexperiment</h2>
+    <p class="lupen-tipp">🔍 Klicke auf die Lupe an einer Spritze, um die Teilchenebene zu öffnen.</p>
+    <div class="syr-labels"><span>① Wasser</span><span>② Benzin</span></div>
+    <svg id="syr" viewBox="0 -36 500 626" role="img" aria-label="Zwei Spritzen mit Wasser und Benzin"></svg>
+    <p class="note">Farben nur zur Veranschaulichung – alle Flüssigkeiten sind in Wirklichkeit farblos. 5-mL-Spritzen. Volumenangaben vereinfacht (Volumenkontraktion und gegenseitige Löslichkeit vernachlässigt).</p>
+  </section>
+
+  </div>
+
+  <!-- Teilchenebene: fährt als Vollbild von unten herein, rechts die Legende -->
+  <section id="teilCard" role="dialog" aria-modal="true" aria-labelledby="hTeil" aria-hidden="true">
+    <div class="ov-head">
+      <h2 id="hTeil">Teilchenebene</h2>
+      <div class="ov-btns">
+        <button class="sw" data-k="wasser" aria-pressed="false">① Wasser-Spritze</button>
+        <button class="sw" data-k="benzin" aria-pressed="false">② Benzin-Spritze</button>
+        <button id="btnPause" type="button">⏸ Teilchen anhalten</button>
+        <button id="btnZurueck" class="primary" type="button">✕ Zurück zum Experiment</button>
+      </div>
+    </div>
+    <div id="teilFenster">
+      <div class="win" id="winW" hidden>
+        <div class="win-head"><strong>① Ausschnitt aus der Wasser-Spritze</strong><button class="info" data-k="wasser" aria-expanded="false">ⓘ Info</button></div>
+        <div class="cvwrap"><canvas id="cvW" aria-label="Teilchenebene Wasser-Spritze"></canvas><div class="infobox" id="infoW" hidden></div></div>
+      </div>
+      <div class="win" id="winB" hidden>
+        <div class="win-head"><strong>② Ausschnitt aus der Benzin-Spritze</strong><button class="info" data-k="benzin" aria-expanded="false">ⓘ Info</button></div>
+        <div class="cvwrap"><canvas id="cvB" aria-label="Teilchenebene Benzin-Spritze"></canvas><div class="infobox" id="infoB" hidden></div></div>
+      </div>
+    </div>
+    <aside class="ov-legende" data-tipify>
+      <h2>Legende</h2>
+      <p class="note" style="margin:0 0 8px">Häkchen setzen oder entfernen, um die Darstellung ein- oder auszublenden.</p>
+      <div class="legend2">
+        <label class="lrow"><input type="checkbox" id="optHb" checked><svg width="70" height="16"><line x1="4" y1="8" x2="66" y2="8" stroke="#1d5fd0" stroke-width="2.4" stroke-dasharray="6 4"/></svg><span><strong>Wasserstoffbrücken</strong> (gestrichelt, blau): O–H ··· O</span></label>
+        <label class="lrow"><input type="checkbox" id="optDip" checked><svg width="70" height="16"><line x1="8" y1="8" x2="62" y2="8" stroke="#c96200" stroke-width="3" stroke-dasharray="1 5" stroke-linecap="round"/><circle cx="6" cy="8" r="3" fill="#c96200"/><circle cx="64" cy="8" r="3" fill="none" stroke="#c96200" stroke-width="1.5"/></svg><span><strong>Keesom-Wechselwirkungen</strong> (gepunktet, orange): C=O ··· C=O</span></label>
+        <label class="lrow"><input type="checkbox" id="optDeb" checked><svg width="70" height="16"><line x1="4" y1="8" x2="66" y2="8" stroke="#1f8a45" stroke-width="2.6" stroke-dasharray="5 2 1.5 2"/></svg><span><strong>Debye-Wechselwirkungen</strong> (Strich-Punkt, grün): polarer ··· unpolarer Molekülbereich</span></label>
+        <label class="lrow"><input type="checkbox" id="optVdw" checked><svg width="70" height="16"><polyline points="4,8 10,4 16,12 22,4 28,12 34,4 40,12 46,4 52,12 58,4 66,8" fill="none" stroke="#6e737d" stroke-width="1.5"/></svg><span><strong>London-Wechselwirkungen</strong> (Zickzack, grau) – wirken zwischen allen Molekülen, hier nur zwischen Alkylteilen gezeigt</span></label>
+        <label class="lrow"><input type="checkbox" id="optLad" checked><svg width="70" height="20"><text x="8" y="15" font-size="13" font-weight="700" fill="#9e1d16">δ−</text><text x="38" y="15" font-size="13" font-weight="700" fill="#163f9a">δ+</text></svg><span><strong>Partialladungen</strong> δ+/δ−</span></label>
+        <label class="lrow"><input type="checkbox" id="optSch" checked><svg width="70" height="20"><circle cx="18" cy="10" r="9" fill="rgba(242,190,40,.45)"/><circle cx="50" cy="10" r="9" fill="rgba(60,130,230,.4)"/></svg><span><strong>Polare/unpolare Molekülbereiche</strong>: gelb = unpolar, blau = polar</span></label>
+        <div class="lrow"><span></span><svg width="70" height="20"><circle cx="12" cy="10" r="8" fill="#5d6470"/><circle cx="34" cy="10" r="7.5" fill="#e0473c"/><circle cx="54" cy="10" r="5" fill="#fff" stroke="#888"/></svg><span>C (CH<sub>3</sub>/CH<sub>2</sub>-Gruppe, vereinfacht als eine Kugel) · O · H</span></div>
+        <div class="lrow"><span></span><svg width="70" height="20"><circle cx="35" cy="10" r="8" fill="#5d6470" stroke="#7b3fc4" stroke-width="2.4"/></svg><span>violett umrandet = Moleküle des zugegebenen Stoffs</span></div>
+      </div>
+      <p class="note">Vereinfachtes Modell: H-Atome werden nur an O-Atomen und an der Aldehydgruppe gezeichnet. Benzin wird durch Heptan (C<sub>7</sub>H<sub>16</sub>) dargestellt.</p>
+    </aside>
+  </section>
+
+  <section class="card wide" aria-labelledby="hErg">
+    <h2 id="hErg">Ergebnis</h2>
+    <p id="steckbrief"></p>
+    <p id="status"></p>
+    <div class="erg-grid">
+      <div><h3>① Wasser-Spritze</h3><p class="obs" id="obsW">–</p><p id="erkW"></p><p id="fbW"></p></div>
+      <div><h3>② Benzin-Spritze</h3><p class="obs" id="obsB">–</p><p id="erkB"></p><p id="fbB"></p></div>
+    </div>
+    <div id="kombiBox" class="kombi" hidden><h3>③ Zusammengeben: Worin löst sich der Stoff besser?</h3><p class="obs" id="obsK"></p><p id="erkK"></p></div>
+  </section>
+
+  <section class="card wide merk" data-tipify>
+      <h2>Merksatz</h2>
+      <p><strong>Hydrophil</strong> („wasserliebend“): Polare Gruppen wie –OH, –CHO, C=O, –COOH, –COO–. Sie bilden Wasserstoffbrücken oder Keesom-Wechselwirkungen mit Wassermolekülen.</p>
+      <p><strong>Lipophil</strong> („fettliebend“): der unpolare Alkylteil. Er bildet London-Wechselwirkungen mit den Molekülen des Benzins.</p>
+      <p>Je länger der Alkylteil, desto <strong>schlechter wasserlöslich</strong> und desto <strong>besser benzinlöslich</strong> ist ein Stoff.</p>
+  </section>
+
+  <section class="card wide two">
+    <div>
+      <h2>Ergebnistabelle</h2>
+      <div class="row-btns"><button id="btnTab">Tabelle zurücksetzen</button></div>
+      <table><thead><tr><th>Stoff</th><th>Stoffklasse</th><th>in Wasser</th><th>in Benzin</th><th>löst sich besser in</th></tr></thead><tbody id="tbody"></tbody></table>
+    </div>
+    <div>
+      <h2>Vergleich: Kettenlänge</h2>
+      <div class="row-btns"><button id="btnRun">▶ Klasse durchlaufen</button></div>
+      <div id="chart"></div>
+      <p class="note">Qualitative Einstufung der getesteten Stoffe der gewählten Stoffklasse. „?“ = noch nicht getestet.</p>
+    </div>
+  </section>
+</main>
+
+<script>
+'use strict';
+/* =====================================================================
+   0. ERKLÄRUNGEN ZU DEN WECHSELWIRKUNGEN (Tooltips beim Überfahren)
+   ===================================================================== */
+const TIPS = {
+  London:'Wechselwirkungen zwischen temporären (induzierten) Dipolen',
+  Keesom:'Wechselwirkungen zwischen permanenten Dipolen',
+  Debye: 'Wechselwirkungen zwischen permanenten und temporären (induzierten) Dipolen'
+};
+function tipify(html){
+  return html.replace(/\b(London|Keesom|Debye)-(Wechselwirkungen|Wechselwirkung)?/g,
+    (m,w)=>`<span class="tip" tabindex="0" data-tip="${w}-Wechselwirkungen: ${TIPS[w]}">${m}</span>`);
+}
+document.querySelectorAll('[data-tipify]').forEach(el=>{el.innerHTML=tipify(el.innerHTML);});
+
+/* =====================================================================
+   1. DATEN
+   ===================================================================== */
+const KLASSEN = {
+  kw:{name:'Kohlenwasserstoffe', gruppe:null},
+  ol:{name:'Alkanole',   gruppe:'Hydroxygruppe (–OH)'},
+  al:{name:'Alkanale',   gruppe:'Aldehydgruppe (–CHO)'},
+  on:{name:'Alkanone',   gruppe:'Ketogruppe (C=O)'},
+  sr:{name:'Alkansäuren',gruppe:'Carboxygruppe (–COOH)'},
+  es:{name:'Ester',      gruppe:'Estergruppe (–COO–)'}
+};
+
+/* Löslichkeitskategorien
+   misch    = in jedem Verhältnis mischbar
+   gut      = gut löslich, bei gleichen Volumina (1:1) aber nicht vollständig
+   begrenzt = begrenzt löslich
+   kaum     = kaum löslich / kaum mischbar
+   nicht    = nicht mischbar                                           */
+const LOES = {
+  misch:   {t:'mischbar',         lang:'mischbar',                                        score:4, pred:['misch']},
+  gut:     {t:'gut löslich',      lang:'gut löslich (bei gleichen Volumina bleibt eine kleine Phase)', score:3, pred:['misch','begrenzt']},
+  begrenzt:{t:'begrenzt löslich', lang:'begrenzt löslich',                                score:2, pred:['begrenzt']},
+  kaum:    {t:'kaum löslich',     lang:'kaum löslich / kaum mischbar',                    score:1, pred:['nicht','begrenzt']},
+  nicht:   {t:'nicht mischbar',   lang:'nicht mischbar',                                  score:0, pred:['nicht']}
+};
+const PRED_TXT = {misch:'mischbar', begrenzt:'begrenzt löslich', nicht:'nicht mischbar'};
+
+/* Molekül-Bausteine (tok): C = CH3/CH2 (Alkyl), Cc = Carbonyl-C (bekommt automatisch =O),
+   O = Hydroxy-O, Oe = Ester-O, H = H an O, h = H an C (Aldehyd/Methansäure)            */
+const STOFFE = [
+  {id:'hexan',   name:'Hexan',        klasse:'kw', formel:'C₆H₁₄',   struktur:'CH₃–CH₂–CH₂–CH₂–CH₂–CH₃', dichte:0.66, tok:'C C C C C C',
+   wasser:'nicht', benzin:'misch', wNote:'praktisch unlöslich'},
+  {id:'cyclohexan',name:'Cyclohexan', klasse:'kw', formel:'C₆H₁₂',   struktur:'Ring aus sechs CH₂-Gruppen', dichte:0.78, ring:6,
+   wasser:'nicht', benzin:'misch', wNote:'praktisch unlöslich'},
+
+  {id:'methanol',name:'Methanol',     klasse:'ol', formel:'CH₃OH',   struktur:'CH₃–OH', dichte:0.79, tok:'C O H',
+   wasser:'misch', benzin:'kaum', wNote:'in jedem Verhältnis',
+   hinweis:{benzin:'Hinweis: Methanol und Benzin lösen sich nur in geringen Anteilen ineinander; das genaue Verhalten hängt von der Benzinsorte ab.'}},
+  {id:'ethanol', name:'Ethanol',      klasse:'ol', formel:'C₂H₅OH',  struktur:'CH₃–CH₂–OH', dichte:0.79, tok:'C C O H',
+   wasser:'misch', benzin:'misch', wNote:'in jedem Verhältnis'},
+  {id:'propanol',name:'Propan-1-ol',  klasse:'ol', formel:'C₃H₇OH',  struktur:'CH₃–CH₂–CH₂–OH', dichte:0.80, tok:'C C C O H',
+   wasser:'misch', benzin:'misch', wNote:'in jedem Verhältnis'},
+  {id:'butanol', name:'Butan-1-ol',   klasse:'ol', formel:'C₄H₉OH',  struktur:'CH₃–(CH₂)₃–OH', dichte:0.81, tok:'C C C C O H',
+   wasser:'begrenzt', benzin:'misch', wNote:'ca. 7 g in 100 mL Wasser'},
+  {id:'hexanol', name:'Hexan-1-ol',   klasse:'ol', formel:'C₆H₁₃OH', struktur:'CH₃–(CH₂)₅–OH', dichte:0.82, tok:'C C C C C C O H',
+   wasser:'kaum', benzin:'misch', wNote:'ca. 0,6 g in 100 mL Wasser'},
+
+  {id:'propanal',name:'Propanal',     klasse:'al', formel:'C₂H₅CHO', struktur:'CH₃–CH₂–CHO', dichte:0.81, tok:'C C Cc h',
+   wasser:'gut', benzin:'misch', wNote:'ca. 30 g in 100 mL Wasser',
+   hinweis:{wasser:'Hinweis: Bei einer kleineren Menge Propanal würde sich alles im Wasser lösen.'}},
+  {id:'butanal', name:'Butanal',      klasse:'al', formel:'C₃H₇CHO', struktur:'CH₃–(CH₂)₂–CHO', dichte:0.80, tok:'C C C Cc h',
+   wasser:'begrenzt', benzin:'misch', wNote:'ca. 7 g in 100 mL Wasser'},
+
+  {id:'propanon', name:'Propanon (Aceton)', klasse:'on', formel:'C₃H₆O', struktur:'CH₃–CO–CH₃', dichte:0.79, tok:'C Cc C',
+   wasser:'misch', benzin:'misch', wNote:'in jedem Verhältnis'},
+  {id:'butanon',  name:'Butanon',     klasse:'on', formel:'C₄H₈O',   struktur:'CH₃–CO–CH₂–CH₃', dichte:0.81, tok:'C Cc C C',
+   wasser:'gut', benzin:'misch', wNote:'ca. 27 g in 100 mL Wasser',
+   hinweis:{wasser:'Hinweis: Bei einer kleineren Menge Butanon würde sich alles im Wasser lösen.'}},
+  {id:'pentanon', name:'Pentan-3-on', klasse:'on', formel:'C₅H₁₀O',  struktur:'CH₃–CH₂–CO–CH₂–CH₃', dichte:0.81, tok:'C C Cc C C',
+   wasser:'begrenzt', benzin:'misch', wNote:'ca. 5 g in 100 mL Wasser'},
+
+  {id:'methansaeure',name:'Methansäure', klasse:'sr', formel:'HCOOH', struktur:'H–COOH', dichte:1.22, tok:'h Cc O H',
+   wasser:'misch', benzin:'nicht', wNote:'in jedem Verhältnis'},
+  {id:'ethansaeure', name:'Ethansäure',  klasse:'sr', formel:'CH₃COOH', struktur:'CH₃–COOH', dichte:1.05, tok:'C Cc O H',
+   wasser:'misch', benzin:'misch', wNote:'in jedem Verhältnis',
+   hinweis:{benzin:'Hinweis: In der Praxis hängt das Ergebnis von Benzinsorte, Temperatur und Wassergehalt der Säure ab.'}},
+  {id:'hexansaeure', name:'Hexansäure',  klasse:'sr', formel:'C₅H₁₁COOH', struktur:'CH₃–(CH₂)₄–COOH', dichte:0.93, tok:'C C C C C Cc O H',
+   wasser:'kaum', benzin:'misch', wNote:'ca. 1 g in 100 mL Wasser'},
+
+  {id:'ethylethanoat', name:'Ethylethanoat', klasse:'es', formel:'C₄H₈O₂', struktur:'CH₃–COO–CH₂–CH₃', dichte:0.90, tok:'C Cc Oe C C',
+   wasser:'begrenzt', benzin:'misch', wNote:'ca. 8 g in 100 mL Wasser'},
+  {id:'pentylethanoat',name:'Pentylethanoat',klasse:'es', formel:'C₇H₁₄O₂', struktur:'CH₃–COO–(CH₂)₄–CH₃', dichte:0.88, tok:'C Cc Oe C C C C C',
+   wasser:'kaum', benzin:'misch', wNote:'ca. 0,2 g in 100 mL Wasser'}
+];
+
+/* Verteilung beim Zusammengeben (je 1 mL Wasser und Benzin, 2 mL Stoff):
+   geschätzter Anteil des Stoffs, der sich in der Wasser-Phase befindet (0 = alles im Benzin, 1 = alles im Wasser).
+   Vereinfachte Schätzwerte aus Wasserlöslichkeit und Verteilungsverhalten (Wasser/Heptan). */
+const VERTEILUNG = {"hexan":0, "cyclohexan":0, "methanol":0.97, "ethanol":0.9, "propanol":0.75, "butanol":0.1, "hexanol":0.02, "propanal":0.25, "butanal":0.06, "propanon":0.8, "butanon":0.25, "pentanon":0.05, "methansaeure":1.0, "ethansaeure":0.9, "hexansaeure":0.03, "ethylethanoat":0.08, "pentylethanoat":0.01};
+STOFFE.forEach(s=>{ s.fw = VERTEILUNG[s.id]; });
+
+const LM = {
+  wasser:{name:'Wasser', dichte:1.00, farbe:[196,224,250]},
+  benzin:{name:'Benzin', dichte:0.70, farbe:[249,234,170]}
+};
+const STOFF_FARBE = [251,252,253];   // zugegebener Stoff: farblos
+
+/* =====================================================================
+   2. HILFSFUNKTIONEN
+   ===================================================================== */
+const rgb = (c,a=1)=>`rgba(${c[0]|0},${c[1]|0},${c[2]|0},${a})`;
+const mix = (a,b,t)=>[a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t, a[2]+(b[2]-a[2])*t];
+const hell = (c,t=.45)=>mix(c,[255,255,255],t);
+const fmt = (x,d=2)=>x.toFixed(d).replace('.',',');
+const ease = p=>p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2;
+const rnd = ()=>Math.random()+Math.random()+Math.random()-1.5;
+const sleep = ms=>new Promise(r=>setTimeout(r,ms));
+const nC = n=>n===1?'1 C-Atom':`${n} C-Atome`;
+const $ = id=>document.getElementById(id);
+
+/* =====================================================================
+   3. MOLEKÜLMODELLE (vereinfachte 2D-Kalottenmodelle)
+   ===================================================================== */
+const KONTAKT = 6;   // Mindestabstand zwischen Atomen verschiedener Moleküle (px)
+const ATOM = {
+  C: {r:8.5, col:'#5d6470', hl:'#a2a9b5', alk:true},
+  Cc:{r:8.5, col:'#3c434f', hl:'#8a929e', dip:'+', q:'+', pol:true},
+  O: {r:8,   col:'#d93d32', hl:'#ffa59b', acc:true, q:'-', pol:true},
+  Oe:{r:8,   col:'#d93d32', hl:'#ffa59b', acc:true, q:'-', pol:true},
+  Od:{r:8,   col:'#d93d32', hl:'#ffa59b', acc:true, dip:'-', q:'-', pol:true},
+  H: {r:5,   col:'#dfe3e9', hl:'#ffffff', don:true, q:'+', pol:true},
+  h: {r:5,   col:'#dfe3e9', hl:'#ffffff'}
+};
+function bindung(a,b){
+  if(a==='H'||b==='H') return 8.5;
+  if(a==='h'||b==='h') return 9;
+  if(a[0]==='O'||b[0]==='O') return 12.5;
+  return 13;
+}
+function fertig(atoms){
+  let sx=0,sy=0; atoms.forEach(a=>{sx+=a.x;sy+=a.y;});
+  sx/=atoms.length; sy/=atoms.length;
+  let R=0; atoms.forEach(a=>{a.x-=sx;a.y-=sy;R=Math.max(R,Math.hypot(a.x,a.y)+a.r);});
+  const masse=1+0.25*atoms.length;
+  return {atoms,R,masse,I:masse*(R*R*0.35+20)};
+}
+function bauKette(tokens){
+  const th=Math.PI/6, pts=[{x:0,y:0}];
+  for(let i=1;i<tokens.length;i++){
+    const s=(i%2)?1:-1, L=bindung(tokens[i-1],tokens[i]), p=pts[i-1];
+    pts.push({x:p.x+Math.cos(th)*L, y:p.y+s*Math.sin(th)*L});
+  }
+  const atoms=tokens.map((t,i)=>Object.assign({e:t,x:pts[i].x,y:pts[i].y},ATOM[t]));
+  tokens.forEach((t,i)=>{            // Carbonyl-O nach außen setzen
+    if(t!=='Cc') return;
+    const p=pts[i]; let ox=0,oy=0;
+    [pts[i-1],pts[i+1]].forEach(n=>{ if(!n) return; const d=Math.hypot(n.x-p.x,n.y-p.y); ox+=(n.x-p.x)/d; oy+=(n.y-p.y)/d; });
+    const d=Math.hypot(ox,oy)||1;
+    atoms.push(Object.assign({e:'Od',x:p.x-ox/d*12.5,y:p.y-oy/d*12.5},ATOM.Od));
+  });
+  return fertig(atoms);
+}
+function bauRing(n){
+  const R=13/(2*Math.sin(Math.PI/n)), atoms=[];
+  for(let i=0;i<n;i++){const a=i/n*2*Math.PI; atoms.push(Object.assign({e:'C',x:Math.cos(a)*R,y:Math.sin(a)*R},ATOM.C));}
+  return fertig(atoms);
+}
+function bauWasser(){
+  const a=52.25*Math.PI/180, L=9;
+  return fertig([
+    Object.assign({e:'O',x:0,y:0},ATOM.O),
+    Object.assign({e:'H',x: Math.sin(a)*L,y:Math.cos(a)*L},ATOM.H),
+    Object.assign({e:'H',x:-Math.sin(a)*L,y:Math.cos(a)*L},ATOM.H)
+  ]);
+}
+STOFFE.forEach(s=>{
+  const tk = s.tok? s.tok.split(' ') : null;
+  s.tpl = s.ring? bauRing(s.ring) : bauKette(tk);
+  s.nAlk = s.ring? s.ring : tk.filter(t=>t==='C').length;
+});
+const TPL_LM = {wasser:bauWasser(), benzin:bauKette('C C C C C C C'.split(' '))};
+const ANZ_LM = {wasser:30, benzin:12};
+const KS = {gut:5, begrenzt:2, kaum:1, nicht:0};   // Stoffmoleküle, die in die Lösemittelphase gehen
+const KL = {gut:3, begrenzt:2, kaum:0, nicht:0};   // Lösemittelmoleküle, die in die Stoffphase gehen
+
+/* =====================================================================
+   4. TEILCHENSIMULATION
+   ===================================================================== */
+class Welt{
+  constructor(canvas,lm){
+    this.cv=canvas; this.ctx=canvas.getContext('2d'); this.lm=lm;
+    this.W=440; this.H=300; this.mols=[]; this.grenze=null; this.hot=false; this.stoff=null;
+    this.resize();
+  }
+  resize(){
+    const dpr=window.devicePixelRatio||1, w=this.cv.clientWidth||440;
+    this.cv.width=Math.round(w*dpr); this.cv.height=Math.round(w*this.H/this.W*dpr);
+    this.scale=this.cv.width/this.W;
+  }
+  neu(tpl,kind,reg){
+    const R=Math.min(tpl.R,(reg[1]-reg[0])/2-1);
+    return {tpl,kind,x:R+Math.random()*(this.W-2*R), y:reg[0]+R+Math.random()*Math.max(1,reg[1]-reg[0]-2*R),
+            a:Math.random()*6.283, vx:0,vy:0,va:0, y0:reg[0], y1:reg[1], tx:null,ty:null,
+            wa:tpl.atoms.map(()=>({x:0,y:0}))};
+  }
+  start(){
+    this.stoff=null; this.cat=null; this.grenze=null; this.hot=false; this.mols=[]; this.kombi=false; this.leer=false;
+    for(let i=0;i<ANZ_LM[this.lm];i++) this.mols.push(this.neu(TPL_LM[this.lm],'lm',[0,this.H]));
+    for(let i=0;i<150;i++) this.schritt(0.3);
+  }
+  stoffZu(s){
+    this.stoff=s; this.cat=s[this.lm]; this.stoffOben = s.dichte < LM[this.lm].dichte;
+    const na=s.tpl.atoms.length, n = na<=4?14:(na<=6?11:9);
+    const reg=this.stoffOben?[0,this.H/2]:[this.H/2,this.H];
+    for(let i=0;i<n;i++) this.mols.push(this.neu(s.tpl,'st',reg));
+    this.layout('zugegeben');
+  }
+  /* Inhalt beider Spritzen in diesem Fenster vereinen (4 mL im Ausschnitt):
+     je mL halb so viele Teilchen wie in den Einzelfenstern (2 mL) */
+  kombiniere(s){
+    this.stoff=s; this.kombi=true; this.leer=false; this.mols=[];
+    const full=[0,this.H];
+    for(let i=0;i<15;i++){const m=this.neu(TPL_LM.wasser,'lm',full); m.art='wasser'; this.mols.push(m);}
+    for(let i=0;i<6;i++){const m=this.neu(TPL_LM.benzin,'lm',full); m.art='benzin'; this.mols.push(m);}
+    const na=s.tpl.atoms.length, n=na<=4?14:(na<=6?11:9);
+    for(let i=0;i<n;i++) this.mols.push(this.neu(s.tpl,'st',full));
+    this.layout('shake');
+  }
+  leeren(){ this.mols=[]; this.leer=true; this.kombi=false; this.grenze=null; this.hot=false; }
+  layout(mode){
+    const top=[0,this.H/2], bot=[this.H/2,this.H], full=[0,this.H];
+    const set=(m,r)=>{m.y0=r[0];m.y1=r[1];};
+    this.hot = (mode==='shake');
+    this.mols.forEach(m=>{m.tx=null;m.ty=null;});
+    if(mode==='kombi'){
+      const fw=this.stoff.fw, Vb=1+2*(1-fw);           // Volumen der Benzin-Phase (von 4 mL)
+      this.grenze=this.H*Vb/4;
+      const oben=[0,this.grenze], unten=[this.grenze,this.H];
+      const st=this.mols.filter(m=>m.kind==='st').sort(()=>Math.random()-.5), nW=Math.round(st.length*fw);
+      this.mols.forEach(m=>{ if(m.art==='wasser') set(m,unten); else if(m.art==='benzin') set(m,oben); });
+      st.forEach((m,i)=>set(m,i<nW?unten:oben));
+      return;
+    }
+    if(mode==='start' || mode==='shake' || (mode==='ergebnis' && this.cat==='misch')){
+      this.grenze=null; this.mols.forEach(m=>set(m,full));
+      if(mode==='shake') this.mols.forEach(m=>{m.tx=30+Math.random()*(this.W-60); m.ty=30+Math.random()*(this.H-60);});
+      return;
+    }
+    this.grenze=this.H/2;
+    const sR=this.stoffOben?top:bot, lR=this.stoffOben?bot:top;
+    const st=this.mols.filter(m=>m.kind==='st'), lm=this.mols.filter(m=>m.kind==='lm');
+    st.forEach(m=>set(m,sR)); lm.forEach(m=>set(m,lR));
+    if(mode==='ergebnis'){
+      const shuf=a=>a.slice().sort(()=>Math.random()-.5);
+      shuf(st).slice(0,KS[this.cat]||0).forEach(m=>set(m,lR));
+      shuf(lm).slice(0,KL[this.cat]||0).forEach(m=>set(m,sR));
+    }
+  }
+  schritt(nz=1){
+    const M=this.mols, W=this.W;
+    for(const m of M){
+      const c=Math.cos(m.a), s=Math.sin(m.a);
+      m.tpl.atoms.forEach((at,i)=>{m.wa[i].x=m.x+c*at.x-s*at.y; m.wa[i].y=m.y+s*at.x+c*at.y;});
+      m.fx=0; m.fy=0; m.tq=0;
+    }
+    // Abstoßung zwischen Atomen verschiedener Moleküle
+    for(let i=0;i<M.length;i++){
+      const a=M[i];
+      for(let j=i+1;j<M.length;j++){
+        const b=M[j], dx=b.x-a.x, dy=b.y-a.y, lim=a.tpl.R+b.tpl.R+KONTAKT;
+        if(dx*dx+dy*dy>lim*lim) continue;
+        // Moleküle auf dem Weg in ihre Phase dürfen andere passieren (verhindert Verklemmen an der Grenze)
+        if(!this.hot && (a.y<a.y0||a.y>a.y1||b.y<b.y0||b.y>b.y1)) continue;
+        for(let p=0;p<a.wa.length;p++){
+          const pa=a.wa[p], ra=a.tpl.atoms[p].r;
+          for(let q=0;q<b.wa.length;q++){
+            const pb=b.wa[q], min=ra+b.tpl.atoms[q].r+KONTAKT, ex=pb.x-pa.x, ey=pb.y-pa.y, d2=ex*ex+ey*ey;
+            if(d2>=min*min) continue;
+            const d=Math.sqrt(d2)||0.01, f=(min-d)*0.12, fx=ex/d*f, fy=ey/d*f;
+            a.fx-=fx; a.fy-=fy; a.tq+=(pa.x-a.x)*(-fy)-(pa.y-a.y)*(-fx);
+            b.fx+=fx; b.fy+=fy; b.tq+=(pb.x-b.x)*fy-(pb.y-b.y)*fx;
+          }
+        }
+      }
+    }
+    // Wände und Phasenbereiche
+    for(const m of M){
+      let wx=0,wy=0,wt=0;
+      m.wa.forEach((p,i)=>{
+        const r=m.tpl.atoms[i].r; let fx=0,fy=0;
+        if(p.x<r) fx=r-p.x; else if(p.x>W-r) fx=W-r-p.x;
+        if(p.y<m.y0+r) fy=m.y0+r-p.y; else if(p.y>m.y1-r) fy=m.y1-r-p.y;
+        if(fx||fy){fx*=0.1;fy*=0.1;wx+=fx;wy+=fy;wt+=(p.x-m.x)*fy-(p.y-m.y)*fx;}
+      });
+      const mag=Math.hypot(wx,wy), cap=this.kombi?1.6:0.6;
+      if(mag>cap){wx*=cap/mag;wy*=cap/mag;wt*=cap/mag;}
+      m.fx+=wx; m.fy+=wy; m.tq+=wt;
+      if(this.hot && m.tx!=null){            // Durchmischen beim Schütteln
+        let gx=(m.tx-m.x)*0.03, gy=(m.ty-m.y)*0.03; const g=Math.hypot(gx,gy);
+        if(g>1.5){gx*=1.5/g;gy*=1.5/g;}
+        m.fx+=gx; m.fy+=gy;
+      }
+    }
+    // Bewegung (Brownsche Bewegung + Dämpfung)
+    const amp=(this.hot?1.4:0.32)*nz, vmax=this.hot?6:3;
+    for(const m of M){
+      const k=1/m.tpl.masse;
+      m.vx=(m.vx+m.fx*k+rnd()*amp)*0.86;
+      m.vy=(m.vy+m.fy*k+rnd()*amp)*0.86;
+      m.va=(m.va+m.tq/m.tpl.I+rnd()*amp*0.03)*0.86;
+      const sp=Math.hypot(m.vx,m.vy); if(sp>vmax){m.vx*=vmax/sp;m.vy*=vmax/sp;}
+      if(Math.abs(m.va)>0.08) m.va=Math.sign(m.va)*0.08;
+      m.x+=m.vx; m.y+=m.vy; m.a+=m.va;
+    }
+  }
+  zeichne(o){
+    const c=this.ctx, W=this.W, H=this.H;
+    c.setTransform(this.scale,0,0,this.scale,0,0);
+    c.clearRect(0,0,W,H);
+    // Hintergrund / Phasen
+    const lmN=LM[this.lm].name, stN=this.stoff?this.stoff.name:'';
+    let labels=[];
+    if(this.leer){
+      c.fillStyle='#fff'; c.fillRect(0,0,W,H);
+      c.font='bold 15px system-ui,sans-serif'; c.textAlign='center'; c.fillStyle='#566074';
+      c.fillText('Spritze ist leer',W/2,H/2-8);
+      c.font='13px system-ui,sans-serif'; c.fillText(this.leerText||'',W/2,H/2+14);
+      return;
+    }
+    if(this.kombi){
+      c.fillStyle='#fff'; c.fillRect(0,0,W,H);
+      if(this.grenze!=null){
+        c.save(); c.setLineDash([8,6]); c.strokeStyle='#2a3140'; c.lineWidth=1.5;
+        c.beginPath(); c.moveTo(0,this.grenze); c.lineTo(W,this.grenze); c.stroke(); c.restore();
+        labels=[['obere Phase: Benzin (Heptan)',14],['untere Phase: Wasser',H-6]];
+      } else labels=[['Emulsion beim Schütteln',14]];
+    } else if(this.grenze!=null){
+      c.fillStyle='#fff'; c.fillRect(0,0,W,H);
+      c.save(); c.setLineDash([8,6]); c.strokeStyle='#2a3140'; c.lineWidth=1.5;
+      c.beginPath(); c.moveTo(0,this.grenze); c.lineTo(W,this.grenze); c.stroke(); c.restore();
+      labels=[['obere Phase: '+(this.stoffOben?stN:lmN),14],['untere Phase: '+(this.stoffOben?lmN:stN),H-6]];
+    } else {
+      c.fillStyle='#fff'; c.fillRect(0,0,W,H);
+      labels=[[this.stoff?(this.hot?'Emulsion beim Schütteln':'eine Phase: Gemisch'):lmN, 14]];
+    }
+    // Schatten: polare / unpolare Molekülbereiche
+    if(o.schatten){
+      for(const m of this.mols) m.tpl.atoms.forEach((at,i)=>{
+        if(!at.alk && !at.pol) return;
+        c.fillStyle=at.alk?'rgba(242,190,40,0.32)':'rgba(60,130,230,0.30)';
+        c.beginPath(); c.arc(m.wa[i].x,m.wa[i].y,at.r+4.5,0,6.283); c.fill();
+      });
+    }
+    // Atome
+    for(const m of this.mols){
+      const st=m.kind==='st';
+      m.tpl.atoms.forEach((at,i)=>{
+        const p=m.wa[i], g=c.createRadialGradient(p.x-at.r*.35,p.y-at.r*.4,at.r*.1,p.x,p.y,at.r);
+        g.addColorStop(0,at.hl); g.addColorStop(1,at.col);
+        c.fillStyle=g; c.beginPath(); c.arc(p.x,p.y,at.r,0,6.283); c.fill();
+        c.lineWidth=st?1.8:0.8; c.strokeStyle=st?'#7b3fc4':'rgba(0,0,0,.45)'; c.stroke();
+      });
+    }
+    this.zeichneWW(c,o);
+    // Partialladungen
+    if(o.ladung){
+      c.font='bold 9.5px system-ui,sans-serif'; c.textAlign='center'; c.textBaseline='middle';
+      for(const m of this.mols) m.tpl.atoms.forEach((at,i)=>{
+        if(!at.q) return;
+        const p=m.wa[i]; let dx=p.x-m.x, dy=p.y-m.y, d=Math.hypot(dx,dy);
+        if(d<1){dx=-Math.sin(m.a);dy=-Math.cos(m.a);d=1;}  // Atom im Zentrum
+        const tx=p.x+dx/d*(at.r+6), ty=p.y+dy/d*(at.r+6);
+        c.fillStyle=at.q==='-'?'#9e1d16':'#163f9a';
+        c.fillText(at.q==='-'?'δ−':'δ+',tx,ty);
+      });
+    }
+    // Beschriftung
+    c.font='bold 12px system-ui,sans-serif'; c.textAlign='right'; c.textBaseline='alphabetic';
+    labels.forEach(([t,y])=>{
+      const w=c.measureText(t).width;
+      c.fillStyle='rgba(255,255,255,.85)'; c.fillRect(W-w-12,y-12,w+8,16);
+      c.fillStyle='#1c2230'; c.fillText(t,W-8,y);
+    });
+  }
+  zeichneWW(c,o){
+    const A=[];
+    this.mols.forEach((m,mi)=>m.tpl.atoms.forEach((at,i)=>A.push({m:mi,t:at,x:m.wa[i].x,y:m.wa[i].y})));
+    const kante=(a,b)=>{const dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy)||1,ux=dx/d,uy=dy/d;
+      return [a.x+ux*a.t.r,a.y+uy*a.t.r,b.x-ux*b.t.r,b.y-uy*b.t.r,d];};
+    // Wasserstoffbrücken: H (an O) ··· O
+    if(o.hb){
+      const don=A.filter(a=>a.t.don), acc=A.filter(a=>a.t.acc), used=new Map();
+      c.save(); c.strokeStyle='#1d5fd0'; c.lineWidth=2.2; c.setLineDash([4,3]);
+      for(const d of don){
+        let best=null, bd=1e9;
+        for(const a of acc){
+          if(a.m===d.m || (used.get(a)||0)>=2) continue;
+          const dist=Math.hypot(a.x-d.x,a.y-d.y);
+          if(dist<d.t.r+a.t.r+KONTAKT+10 && dist<bd){bd=dist;best=a;}
+        }
+        if(best){ used.set(best,(used.get(best)||0)+1);
+          const [x1,y1,x2,y2]=kante(d,best); c.beginPath(); c.moveTo(x1,y1); c.lineTo(x2,y2); c.stroke(); }
+      }
+      c.restore();
+    }
+    // Keesom: C=O ··· C=O  (δ− am O zu δ+ am C)
+    if(o.dip){
+      const neg=A.filter(a=>a.t.dip==='-'), pos=A.filter(a=>a.t.dip==='+'), used=new Set();
+      c.save(); c.strokeStyle='#c96200'; c.fillStyle='#c96200'; c.lineWidth=3; c.lineCap='round'; c.setLineDash([0.5,5]);
+      for(const n of neg){
+        let best=null, bd=1e9;
+        for(const p of pos){
+          if(p.m===n.m || used.has(p)) continue;
+          const dist=Math.hypot(p.x-n.x,p.y-n.y);
+          if(dist<n.t.r+p.t.r+KONTAKT+18 && dist<bd){bd=dist;best=p;}
+        }
+        if(best){ used.add(best);
+          const [x1,y1,x2,y2]=kante(n,best);
+          c.setLineDash([0.5,5]); c.beginPath(); c.moveTo(x1,y1); c.lineTo(x2,y2); c.stroke();
+          c.setLineDash([]); c.beginPath(); c.arc(x1,y1,2.4,0,6.283); c.fill();
+          c.beginPath(); c.arc(x2,y2,2.4,0,6.283); c.lineWidth=1.4; c.stroke(); c.lineWidth=3; }
+      }
+      c.restore();
+    }
+    // Debye: permanenter Dipol (polarer Bereich) ··· induzierter Dipol (Alkylteil eines anderen Moleküls)
+    if(o.deb){
+      const pol=A.filter(a=>a.t.pol && a.t.e!=='Cc'), alk=A.filter(a=>a.t.alk), used=new Set();
+      c.save(); c.strokeStyle='#1f8a45'; c.lineWidth=2.6; c.setLineDash([5,2,1.5,2]);
+      for(const p of pol){
+        let best=null, bd=1e9;
+        for(const a of alk){
+          if(a.m===p.m || used.has(a)) continue;
+          const dist=Math.hypot(a.x-p.x,a.y-p.y);
+          if(dist<p.t.r+a.t.r+KONTAKT+9 && dist<bd){bd=dist;best=a;}
+        }
+        if(!best) continue;
+        used.add(best);
+        const [x1,y1,x2,y2]=kante(p,best); c.beginPath(); c.moveTo(x1,y1); c.lineTo(x2,y2); c.stroke();
+      }
+      c.restore();
+    }
+    // London: zwischen Alkylteilen
+    if(o.vdw){
+      const alk=A.filter(a=>a.t.alk), used=new Set();
+      c.save(); c.strokeStyle='#5f646d'; c.lineWidth=1.3;
+      for(let i=0;i<alk.length;i++){
+        const a=alk[i]; if(used.has(a)) continue;
+        let best=null, bd=1e9;
+        for(let j=0;j<alk.length;j++){
+          const b=alk[j]; if(b.m===a.m || used.has(b)) continue;
+          const dist=Math.hypot(b.x-a.x,b.y-a.y);
+          if(dist<a.t.r+b.t.r+KONTAKT+9 && dist<bd){bd=dist;best=b;}
+        }
+        if(!best) continue;
+        used.add(a); used.add(best);
+        const [x1,y1,x2,y2]=kante(a,best), L=Math.hypot(x2-x1,y2-y1);
+        if(L<2) continue;
+        const ux=(x2-x1)/L, uy=(y2-y1)/L, n=Math.max(3,Math.round(L/2.2));
+        c.beginPath(); c.moveTo(x1,y1);
+        for(let k=1;k<n;k++){const t=k/n, s=(k%2?2.2:-2.2); c.lineTo(x1+ux*L*t-uy*s, y1+uy*L*t+ux*s);}
+        c.lineTo(x2,y2); c.stroke();
+      }
+      c.restore();
+    }
+  }
+}
+
+/* =====================================================================
+   5. REALEXPERIMENT: SPRITZEN (SVG)
+   ===================================================================== */
+const SYR = {top:150, bottom:510, mlPx:72, half:34, max:5};   // 5-mL-Spritze, 72 px pro mL
+const SP = {
+  wasser:{id:'wasser', cx:100, num:'1', layers:[], emul:0, emulMax:1, shake:0, drops:[], misch:false, capA:1},
+  benzin:{id:'benzin', cx:330, num:'2', layers:[], emul:0, emulMax:1, shake:0, drops:[], misch:false, capA:1}
+};
+/* Dreiwegehahn zum Umfüllen: alpha = Sichtbarkeit, angle = Stellung des Hebels
+   (0° = zeigt nach rechts, 90° = nach unten, 180° = nach links; der Hebel zeigt auf den geschlossenen Anschluss),
+   flow = Flüssigkeit strömt, src = abgebende Spritze */
+const HAHN = {alpha:0, angle:0, flow:0, col:[200,200,200], src:'wasser'};
+function hahnSVG(now){
+  if(HAHN.alpha<=0.001) return '';
+  const xL=SP.wasser.cx, xR=SP.benzin.cx, yT=SYR.bottom+48, yV=605, xc=(xL+xR)/2;
+  let g=`<g opacity="${HAHN.alpha.toFixed(3)}">`;
+  const wege=[
+    {d:`M${xL} ${yT} L${xL} ${yV-15} Q${xL} ${yV} ${xL+15} ${yV} L${xc-20} ${yV}`, vor:HAHN.src==='wasser'},
+    {d:`M${xR} ${yT} L${xR} ${yV-15} Q${xR} ${yV} ${xR-15} ${yV} L${xc+20} ${yV}`, vor:HAHN.src==='benzin'}
+  ];
+  const t=(now*0.05)%24;
+  wege.forEach(w=>{
+    g+=`<path d="${w.d}" fill="none" stroke="#7f8897" stroke-width="11" stroke-linecap="round"/>`;
+    g+=`<path d="${w.d}" fill="none" stroke="#f4f6f9" stroke-width="7" stroke-linecap="round"/>`;
+    if(HAHN.flow>0){
+      g+=`<path d="${w.d}" fill="none" stroke="${rgb(HAHN.col)}" stroke-width="7" stroke-linecap="round"/>`;
+      g+=`<path d="${w.d}" fill="none" stroke="${rgb(mix(HAHN.col,[70,80,100],.45))}" stroke-width="3" stroke-dasharray="7 5" stroke-dashoffset="${(w.vor?-t:t).toFixed(1)}"/>`;
+    }
+  });
+  // Gehäuse mit drei Anschlüssen (links, rechts, unten)
+  g+=`<rect x="${xc-24}" y="${yV-9}" width="48" height="18" rx="5" fill="#e3e7ee" stroke="#6f7888" stroke-width="1.5"/>`;
+  g+=`<rect x="${xc-7}" y="${yV+8}" width="14" height="20" fill="#e3e7ee" stroke="#6f7888" stroke-width="1.5"/>`;
+  g+=`<rect x="${xc-9}" y="${yV+26}" width="18" height="9" rx="2" fill="#4a505b"/>`;
+  if(HAHN.flow>0) g+=`<rect x="${xc-24}" y="${yV-3}" width="48" height="6" fill="${rgb(HAHN.col)}"/>`;
+  g+=`<circle cx="${xc}" cy="${yV}" r="13" fill="#f7f8fa" stroke="#6f7888" stroke-width="1.5"/>`;
+  // Hebel
+  g+=`<g transform="rotate(${HAHN.angle.toFixed(1)} ${xc} ${yV})"><rect x="${xc-4}" y="${yV-5}" width="36" height="10" rx="5" fill="#2b56c6"/>`;
+  g+=`<text x="${xc+20}" y="${yV+3}" font-size="7" font-weight="700" fill="#fff" text-anchor="middle">OFF</text></g>`;
+  g+=`<circle cx="${xc}" cy="${yV}" r="5" fill="#1f3f96"/>`;
+  const offen=Math.abs(HAHN.angle-90)<5;
+  g+=`<text x="${xc}" y="${yV+52}" font-size="12.5" font-weight="700" fill="#1c2230" text-anchor="middle">Dreiwegehahn</text>`;
+  g+=`<text x="${xc}" y="${yV+66}" font-size="11" fill="#4a5366" text-anchor="middle">${offen?'offen: ① ↔ ②':'geschlossen'}</text>`;
+  return g+'</g>';
+}
+function spritzeSVG(sd,now){
+  const cx=sd.cx, L=cx-SYR.half, R=cx+SYR.half, B=SYR.bottom, T=SYR.top, px=SYR.mlPx, Wd=2*SYR.half;
+  const vTot=sd.layers.reduce((a,l)=>a+l.vol,0), seal=B-vTot*px;
+  let g=`<g transform="rotate(${sd.shake.toFixed(2)} ${cx} ${(T+B)/2})">`;
+  // Kolbenstange und Daumenplatte
+  const rodL=B-T+12, rodTop=seal-12-rodL;
+  g+=`<rect x="${cx-6}" y="${rodTop}" width="12" height="${rodL}" fill="#e6e9ef" stroke="#8b93a1"/>`;
+  g+=`<rect x="${cx-30}" y="${rodTop-9}" width="60" height="10" rx="3" fill="#cdd2db" stroke="#7f8897"/>`;
+  // Spitze mit Flüssigkeit
+  const bc = sd.emul>0.5 ? sd.emulCol : (sd.layers[0]?sd.layers[0].col:[255,255,255]);
+  g+=`<path d="M${L} ${B} L${cx-5} ${B+26} L${cx-3.5} ${B+48} L${cx+3.5} ${B+48} L${cx+5} ${B+26} L${R} ${B} Z" fill="${rgb(bc)}" stroke="#7f8897" stroke-width="2"/>`;
+  if(sd.capA>0.01) g+=`<rect x="${cx-8}" y="${B+38}" width="16" height="28" rx="3" fill="#4a505b" opacity="${sd.capA.toFixed(3)}"/>`;
+  // Flüssigkeit
+  g+=`<g clip-path="url(#clip-${sd.id})">`;
+  let y=B;
+  sd.layers.forEach(l=>{const h=l.vol*px; g+=`<rect x="${L}" y="${(y-h).toFixed(1)}" width="${Wd}" height="${(h+0.6).toFixed(1)}" fill="${rgb(l.col)}"/>`; y-=h;});
+  if(sd.layers.length>1 && sd.emul<0.5 && sd.layers[0].vol>0.05 && sd.layers[1].vol>0.05){
+    const yy=B-sd.layers[0].vol*px;
+    g+=`<line x1="${L}" x2="${R}" y1="${yy}" y2="${yy}" stroke="rgba(40,45,60,.7)" stroke-width="2"/>`;
+  }
+  if(sd.emul>0.001){
+    g+=`<rect x="${L}" y="${seal}" width="${Wd}" height="${vTot*px}" fill="${rgb(sd.emulCol)}" opacity="${sd.emul.toFixed(3)}"/>`;
+    sd.drops.forEach(d=>{
+      const dx=cx+(d.x+Math.sin(now*0.004+d.ph)*0.08)*(SYR.half-6), dy=B-(0.04+d.y*0.92)*vTot*px+Math.cos(now*0.003+d.ph)*3;
+      g+=`<circle cx="${dx.toFixed(1)}" cy="${dy.toFixed(1)}" r="${d.r}" fill="${rgb(sd.dropCol)}" stroke="rgba(255,255,255,.9)" stroke-width="1" opacity="${sd.emul.toFixed(3)}"/>`;
+    });
+  }
+  g+='</g>';
+  // Kolbendichtung
+  g+=`<rect x="${L}" y="${seal-12}" width="${Wd}" height="12" fill="#363b44"/>`;
+  g+=`<line x1="${L}" x2="${R}" y1="${seal-6}" y2="${seal-6}" stroke="#5b616c" stroke-width="1.5"/>`;
+  // Zylinder (Glas) und Griffplatte
+  g+=`<rect x="${L-3}" y="${T-4}" width="${Wd+6}" height="${B-T+4}" rx="4" fill="rgba(255,255,255,.12)" stroke="#6f7888" stroke-width="2.5"/>`;
+  g+=`<rect x="${L-24}" y="${T-15}" width="${Wd+48}" height="11" rx="3" fill="#dde1e8" stroke="#7f8897"/>`;
+  // Skala
+  for(let v=0;v<=SYR.max*10;v+=2){            // Teilstriche alle 0,2 mL
+    const yy=B-v/10*px, lg=v%10===0;
+    g+=`<line x1="${L}" x2="${L+(lg?14:8)}" y1="${yy}" y2="${yy}" stroke="#262c38" stroke-width="${lg?1.7:1}"/>`;
+    if(lg&&v>0) g+=`<text x="${L+17}" y="${yy+4}" font-size="11" fill="#262c38">${v/10}</text>`;
+  }
+  g+=`<text x="${L+17}" y="${T+24}" font-size="10" fill="#262c38">mL</text>`;
+  // Lupe
+  let zy;
+  if(sd.layers.length>1 && sd.emul<0.5) zy=B-sd.layers[0].vol*px; else zy=B-vTot*px/2;
+  if(vTot>0.05){
+  const aktiv=sichtbar[sd.id], puls=aktiv?0:(Math.sin(now*0.005)+1)/2;
+  g+=`<g class="lupe" data-lupe="${sd.id}">`;
+  g+=`<circle cx="${cx}" cy="${zy}" r="${(17+puls*5).toFixed(1)}" fill="none" stroke="rgba(43,86,198,${(0.55*(1-puls)).toFixed(2)})" stroke-width="3"/>`;
+  g+=`<circle cx="${cx-8}" cy="${zy+8}" r="30" fill="rgba(0,0,0,0)"/>`;
+  g+=`<circle cx="${cx}" cy="${zy}" r="15" fill="${aktiv?'rgba(43,86,198,.18)':'rgba(255,255,255,.18)'}" stroke="${aktiv?'#2b56c6':'#1c2230'}" stroke-width="2.6"/>`;
+  g+=`<line x1="${cx-11}" y1="${zy+11}" x2="${cx-22}" y2="${zy+22}" stroke="#1c2230" stroke-width="4" stroke-linecap="round"/>`;
+  g+=`<circle cx="${cx-27}" cy="${zy+27}" r="9" fill="#1c2230"/><text x="${cx-27}" y="${zy+31}" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">${sd.num}</text>`;
+  g+='</g>';
+  }
+  g+='</g>';
+  // Beschriftung der Phasen (nicht mitgedreht)
+  const lab=(yy,l1,l2)=>{
+    let s=`<line x1="${R+3}" x2="${R+9}" y1="${yy-4}" y2="${yy-4}" stroke="#1c2230" stroke-width="1.5"/>`;
+    s+=`<text x="${R+12}" y="${yy}" font-size="12.5" font-weight="700" fill="#1c2230">${l1}</text>`;
+    if(l2) s+=`<text x="${R+12}" y="${yy+14}" font-size="11" fill="#4a5366">${l2}</text>`;
+    return s;
+  };
+  if(sd.emul>0.5){
+    g+=lab(B-vTot*px/2, sd.misch?'Schlieren':'trübe', sd.misch?'(kurzzeitig)':'Emulsion');
+  } else if(vTot<=0.05){
+    g+=lab((T+B)/2,'leer','');
+  } else {
+    // Beschriftung jeder Schicht in ihrer Mitte, mit Mindestabstand von 32 px
+    let yy=B, pos=[];
+    sd.layers.forEach(l=>{ const h=l.vol*px; if(l.vol>0.05) pos.push({l,y:yy-h/2+4}); yy-=h; });
+    for(let i=1;i<pos.length;i++) if(pos[i].y>pos[i-1].y-32) pos[i].y=pos[i-1].y-32;
+    pos.forEach(p=>{ g+=lab(p.y,p.l.l1,p.l.l2); });
+  }
+  return g;
+}
+function renderSpritzen(now){
+  let s='<defs>';
+  for(const k in SP){const sd=SP[k]; s+=`<clipPath id="clip-${sd.id}"><rect x="${sd.cx-SYR.half}" y="0" width="${2*SYR.half}" height="${SYR.bottom}"/></clipPath>`;}
+  s+='</defs>';
+  s+=hahnSVG(now)+spritzeSVG(SP.wasser,now)+spritzeSVG(SP.benzin,now);
+  // Sichtbaren Ausschnitt an den Inhalt anpassen: oben nur so viel Platz wie die Kolbenstangen brauchen,
+  // unten nur Platz für den Dreiwegehahn, wenn er angeschlossen ist
+  let oben=-36;
+  for(const k in SP){ const v=SP[k].layers.reduce((a,l)=>a+l.vol,0); oben=Math.min(oben, SYR.bottom-v*SYR.mlPx-12-(SYR.bottom-SYR.top+12)-16); }
+  const unten=590+86*HAHN.alpha;
+  const svg=$('syr'); svg.setAttribute('viewBox',`0 ${oben.toFixed(1)} 500 ${(unten-oben).toFixed(1)}`);
+  svg.innerHTML=s;
+}
+function endSchichten(k,s){
+  const cat=s[k], lm=LM[k];
+  if(cat==='misch') return [{l1:'Gemisch',l2:'(eine Phase)',col:mix(lm.farbe,STOFF_FARBE,.5),vol:2}];
+  const vs={gut:0.52,begrenzt:0.86,kaum:0.98,nicht:1}[cat], geloest=(cat==='gut'||cat==='begrenzt');
+  const st={l1:s.name,l2:'Phase',col:geloest?mix(STOFF_FARBE,lm.farbe,.15):STOFF_FARBE,vol:vs};
+  const lp={l1:lm.name,l2:geloest?'Phase (mit gelöstem Stoff)':'Phase',col:geloest?mix(lm.farbe,STOFF_FARBE,.3):lm.farbe,vol:2-vs};
+  return s.dichte<lm.dichte?[lp,st]:[st,lp];
+}
+
+/* =====================================================================
+   6. TEXTE: BEOBACHTUNG, ERKLÄRUNG, INFO
+   ===================================================================== */
+const WW_WASSER = {
+  ol:'Die Hydroxygruppe (–OH) kann mit Wassermolekülen Wasserstoffbrücken bilden – als Donor (H-Atom) und als Akzeptor (O-Atom).',
+  al:'Das O-Atom der Aldehydgruppe (–CHO) kann Wasserstoffbrücken von Wassermolekülen annehmen (nur Akzeptor); zusätzlich wirken Keesom-Wechselwirkungen.',
+  on:'Das O-Atom der Ketogruppe (C=O) kann Wasserstoffbrücken von Wassermolekülen annehmen (nur Akzeptor); zusätzlich wirken Keesom-Wechselwirkungen.',
+  sr:'Die Carboxygruppe (–COOH) bildet mit Wassermolekülen starke Wasserstoffbrücken – als Donor und als Akzeptor.',
+  es:'Die O-Atome der Estergruppe (–COO–) können Wasserstoffbrücken von Wassermolekülen annehmen (nur Akzeptor); ein eigenes H-Atom für Wasserstoffbrücken besitzt ein Ester nicht.'
+};
+function erklaerung(s,k){
+  const cat=s[k], g=KLASSEN[s.klasse].gruppe, n=s.nAlk, lm=LM[k];
+  let t='';
+  if(k==='wasser'){
+    if(s.klasse==='kw'){
+      t=`${s.name} ist unpolar und kann keine Wasserstoffbrücken bilden. Zwischen ${s.name}- und Wassermolekülen wirken nur schwache London-Wechselwirkungen sowie Debye-Wechselwirkungen (die polaren Wassermoleküle induzieren Dipole in den ${s.name}-Molekülen). Beim Mischen müssten die starken Wasserstoffbrücken zwischen den Wassermolekülen aufgebrochen werden, ohne dass gleich starke neue Wechselwirkungen entstehen. Die Wassermoleküle bleiben deshalb unter sich und drängen die ${s.name}-Moleküle hinaus.`;
+    } else {
+      const ww=WW_WASSER[s.klasse];
+      if(cat==='misch') t=`${ww} Der unpolare Alkylteil (${nC(n)}) ist klein, der hydrophile Teil überwiegt. Die neuen Wechselwirkungen zwischen Wasser- und ${s.name}-Molekülen ersetzen die aufgebrochenen Wasserstoffbrücken zwischen den Wassermolekülen – beide Flüssigkeiten mischen sich.`;
+      else if(cat==='gut') t=`${ww} Deshalb ist ${s.name} gut wasserlöslich (${s.wNote}). Der unpolare Alkylteil (${nC(n)}) stört das Wasserstoffbrücken-Netz aber schon so stark, dass sich bei gleichen Volumina nicht alles löst – eine kleinere ${s.name}-Phase bleibt übrig.`;
+      else if(cat==='begrenzt') t=`${ww} Der unpolare Alkylteil (${nC(n)}) ist aber schon recht groß: Er kann keine Wasserstoffbrücken bilden und stört das Netz der Wassermoleküle. Nur ein kleiner Teil löst sich (${s.wNote}).`;
+      else t=`Der lange unpolare Alkylteil (${nC(n)}) überwiegt deutlich gegenüber der ${g}. Die Wassermoleküle halten über ihre Wasserstoffbrücken zusammen und drängen die ${s.name}-Moleküle hinaus; nur Spuren lösen sich (${s.wNote}).`;
+    }
+  } else {
+    if(cat==='misch'){
+      if(s.klasse==='kw') t=`${s.name} und Heptan (Benzin) sind beide unpolar. Zwischen allen Molekülen wirken London-Wechselwirkungen ähnlicher Stärke – die Stoffe mischen sich („Ähnliches löst sich in Ähnlichem“).`;
+      else {
+        t=`Zwischen dem Alkylteil von ${s.name} (${nC(n)}) und den Heptan-Molekülen wirken London-Wechselwirkungen. Zusätzlich induziert die polare ${g} Dipole in benachbarten Heptan-Molekülen (Debye-Wechselwirkungen).`;
+        if(s.id==='ethansaeure') t+=' Ethansäure-Moleküle lagern sich dabei über zwei Wasserstoffbrücken zu Paaren (Dimeren) zusammen. Die polaren Gruppen zeigen nach innen; nach außen wirkt das Dimer weniger polar und lässt sich daher in Benzin lösen.';
+        else if(s.klasse==='ol'||s.klasse==='sr') t+= n<=3 ? ` Obwohl die ${g} stark polar ist, reicht der Alkylteil aus, damit sich ${s.name} mit Benzin mischt.` : ` Der lipophile Alkylteil überwiegt gegenüber der ${g} – ${s.name} mischt sich gut mit Benzin.`;
+        else t+=` Die Keesom-Wechselwirkungen zwischen den ${s.name}-Molekülen sind schwächer als Wasserstoffbrücken und werden durch die London-Wechselwirkungen zum Heptan ausgeglichen – die Stoffe mischen sich.`;
+      }
+    } else {
+      const teil = n===0 ? 'besitzt keinen Alkylteil' : `hat nur einen sehr kleinen Alkylteil (${nC(n)})`;
+      t=`${s.name} ${teil}. Die Moleküle halten über starke Wasserstoffbrücken untereinander zusammen. Heptan kann nur schwache London- und Debye-Wechselwirkungen anbieten, die diese Wasserstoffbrücken nicht ersetzen – die Flüssigkeiten entmischen sich.`;
+    }
+  }
+  if(cat!=='misch'){
+    const oben=s.dichte<lm.dichte;
+    t+=` ${s.name} (ρ = ${fmt(s.dichte)} g/mL) hat eine ${oben?'geringere':'größere'} Dichte als ${lm.name} (ρ ${k==='benzin'?'≈ ':'= '}${fmt(lm.dichte)} g/mL), deshalb bildet die ${s.name}-Phase die ${oben?'obere':'untere'} Schicht.`;
+  }
+  if(s.hinweis && s.hinweis[k]) t+=' '+s.hinweis[k];
+  return t;
+}
+function beobachtung(k,s){
+  const cat=s[k], lmN=LM[k].name, L=SP[k].layers;
+  if(cat==='misch') return `Beim Schütteln entstehen kurz Schlieren, dann bildet sich eine einzige klare Phase (ca. 2 mL). ${s.name} und ${lmN} sind mischbar.`;
+  const ob=L[1], un=L[0];
+  let t=`Nach dem Schütteln ist der Inhalt zunächst trüb (Emulsion). Dann bilden sich zwei Phasen: oben ${ob.l1}-Phase (ca. ${fmt(ob.vol)} mL), unten ${un.l1}-Phase (ca. ${fmt(un.vol)} mL).`;
+  if(cat==='gut'||cat==='begrenzt') t+=` Die ${s.name}-Phase ist ${cat==='gut'?'deutlich ':''}kleiner als der zugegebene 1 mL – ein Teil hat sich im ${lmN} gelöst.`;
+  else t+=' Die Volumina der Phasen ändern sich praktisch nicht.';
+  return t;
+}
+function stoffWW(s){
+  const kl=s.klasse, p=[];
+  if(s.nAlk>0) p.push('London-Wechselwirkungen zwischen den Alkylteilen');
+  if(kl==='ol'||kl==='sr') p.push('Wasserstoffbrücken');
+  if(kl==='al'||kl==='on'||kl==='es'||kl==='sr') p.push('Keesom-Wechselwirkungen zwischen den C=O-Gruppen');
+  if(kl!=='kw' && s.nAlk>0) p.push('Debye-Wechselwirkungen zwischen polaren Gruppen und Alkylteilen');
+  return `Zwischen ${s.name}-Molekülen wirken: ${p.join(', ')}.`;
+}
+function infoText(k){
+  const base = k==='wasser'
+    ? 'Wassermoleküle sind Dipole (Die O-H-Bindungen sind stark polarisiert: δ− am O-Atom, δ+ an den H-Atomen). Zwischen ihnen wirken starke Wasserstoffbrücken, die ein dichtes Netzwerk bilden.'
+    : 'Benzin wird hier durch Heptan (C₇H₁₆) dargestellt. Heptanmoleküle sind keine Dipole; zwischen den Molekülen wirken nur London-Wechselwirkungen, die mit der Kettenlänge zunehmen.';
+  const s=aktStoff();
+  if(zustand==='leer') return base;
+  if(zustand==='kombiniert') return k===kombiZiel ? kombiErkl(aktStoff()) : 'Diese Spritze ist leer – ihr Inhalt wurde in die andere Spritze gegeben.';
+  if(zustand==='ergebnis') return erklaerung(s,k);
+  const oben=s.dichte<LM[k].dichte;
+  return `${base} ${stoffWW(s)} Noch nicht geschüttelt: ${s.name} liegt als eigene Schicht ${oben?'oben':'unten'}.`;
+}
+
+function besserIn(s){ return s.fw>=0.6?'Wasser':(s.fw<=0.4?'Benzin':'in beiden etwa gleich'); }
+function kombiBeob(s,ziel){
+  const Vw=1+2*s.fw, Vb=4-Vw;
+  return `Nach dem Zusammengeben in Spritze ${SP[ziel].num} und erneutem Schütteln bilden sich zwei Phasen: oben die Benzin-Phase (ca. ${fmt(Vb,1)} mL), unten die Wasser-Phase (ca. ${fmt(Vw,1)} mL). Die Phasengrenze liegt bei ca. ${fmt(Vw,1)} mL – ${Math.abs(Vw-2)<0.3?'etwa':'nicht'} bei 2 mL. Vor dem Zusammengeben waren es je 1 mL Wasser und Benzin.`;
+}
+function kombiErkl(s){
+  const fw=s.fw, g=KLASSEN[s.klasse].gruppe, n=s.nAlk;
+  const pol = (s.klasse==='ol'||s.klasse==='sr') ? 'Wasserstoffbrücken (als Donor und Akzeptor)' : 'Wasserstoffbrücken (als Akzeptor) und Keesom-Wechselwirkungen';
+  let t;
+  if(fw>=0.6){
+    t=`Die Wasser-Phase ist von 1 mL auf ca. ${fmt(1+2*fw,1)} mL angewachsen: ${s.name} löst sich besser im Wasser (ca. ${Math.round(fw*100)} % des Stoffs befinden sich in der Wasser-Phase). Auf der Teilchenebene liegen die meisten ${s.name}-Moleküle zwischen den Wassermolekülen. Die ${g} bildet mit Wasser ${pol}. Diese Wechselwirkungen sind stärker als die London- und Debye-Wechselwirkungen, die ${n>0?`der kleine Alkylteil (${nC(n)})`:s.name} mit Heptan eingehen kann.`;
+  } else if(fw<=0.4){
+    t=`Die Benzin-Phase ist von 1 mL auf ca. ${fmt(3-2*fw,1)} mL angewachsen: ${s.name} löst sich besser im Benzin (ca. ${Math.round((1-fw)*100)} % des Stoffs befinden sich in der Benzin-Phase). Auf der Teilchenebene liegen die meisten ${s.name}-Moleküle zwischen den Heptan-Molekülen. `;
+    t+= s.klasse==='kw'
+      ? `${s.name} ist unpolar: Es bildet mit Heptan London-Wechselwirkungen, kann mit Wasser aber keine Wasserstoffbrücken eingehen.`
+      : `Der unpolare Alkylteil (${nC(n)}) bildet mit Heptan London-Wechselwirkungen. Die ${g} allein reicht nicht aus, um die Moleküle in das Netz der Wasserstoffbrücken des Wassers einzubauen${fw>0?' – nur ein kleiner Teil bleibt im Wasser':''}.`;
+  } else {
+    t=`${s.name} verteilt sich auf beide Phasen. Die ${g} bildet mit Wasser ${pol}, der Alkylteil (${nC(n)}) mit Heptan London-Wechselwirkungen – beide Anteile sind etwa gleich wichtig.`;
+  }
+  return t+' (Vereinfacht: Die Verteilung ist geschätzt, Volumenänderungen durch gegenseitige Löslichkeit sind vernachlässigt.)';
+}
+
+/* =====================================================================
+   7. UI-LOGIK
+   ===================================================================== */
+const welten=[new Welt($('cvW'),'wasser'), new Welt($('cvB'),'benzin')];
+const WELT={wasser:welten[0], benzin:welten[1]};
+const sichtbar={wasser:false, benzin:false};      // Teilchenebene erst nach Klick auf die Lupe
+function zeigeTeilchen(k,an){
+  sichtbar[k]=an;
+  $(k==='wasser'?'winW':'winB').hidden=!an;
+  document.querySelectorAll('button.sw').forEach(b=>b.setAttribute('aria-pressed',String(sichtbar[b.dataset.k])));
+  const offen = sichtbar.wasser || sichtbar.benzin, tc=$('teilCard');
+  tc.classList.toggle('offen',offen); tc.setAttribute('aria-hidden',String(!offen));
+  document.body.classList.toggle('ov-offen',offen);
+  passeTeilchenAn(); setTimeout(passeTeilchenAn,520);
+  aktion();
+}
+let kombiZiel=null;
+const kombiRes=new Set();
+const opt={hb:true,dip:true,deb:true,vdw:true,ladung:true,schatten:true};
+let zustand='leer', busy=false, autoRun=false;
+let pausiert=false, autoPausiert=false, letzteAktion=performance.now(), looping=false;
+const tweens=[];
+const ergebnisse=new Map();
+
+function aktStoff(){ return STOFFE.find(s=>s.id===$('selStoff').value); }
+function tween(dur,fn){ return new Promise(res=>{tweens.push({t0:performance.now(),dur,fn,res}); kick();}); }
+function kick(){ if(!looping){looping=true; requestAnimationFrame(loop);} }
+function aktion(){
+  letzteAktion=performance.now();
+  if(autoPausiert){pausiert=false;autoPausiert=false;updPause();}
+  kick();
+}
+function loop(now){
+  for(let i=tweens.length-1;i>=0;i--){
+    const t=tweens[i], p=Math.min(1,(now-t.t0)/t.dur); t.fn(p);
+    if(p>=1){tweens.splice(i,1); t.res();}
+  }
+  if(!pausiert && now-letzteAktion>60000){pausiert=true;autoPausiert=true;updPause();}
+  if(!pausiert) welten.forEach(w=>w.schritt(1));
+  welten.forEach(w=>{ if(sichtbar[w.lm]) w.zeichne(opt); });
+  renderSpritzen(now);
+  const emul=SP.wasser.emul>0.001||SP.benzin.emul>0.001;
+  const pulsiert=!(sichtbar.wasser&&sichtbar.benzin);   // Lupe blinkt als Hinweis
+  if(pausiert && tweens.length===0 && !emul && !pulsiert){looping=false; return;}
+  requestAnimationFrame(loop);
+}
+function updPause(){ $('btnPause').textContent = pausiert ? '▶ Teilchen bewegen' : '⏸ Teilchen anhalten'; }
+
+function fuelleKlassen(){
+  $('selKlasse').innerHTML=Object.entries(KLASSEN).map(([k,v])=>`<option value="${k}">${v.name}</option>`).join('');
+}
+function fuelleStoffe(){
+  const kl=$('selKlasse').value;
+  $('selStoff').innerHTML=STOFFE.filter(s=>s.klasse===kl).map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+}
+function updSteckbrief(){
+  const s=aktStoff();
+  $('steckbrief').innerHTML=`<strong>${s.name}</strong> · ${KLASSEN[s.klasse].name} · Summenformel ${s.formel} · Halbstrukturformel ${s.struktur} · Dichte ρ = ${fmt(s.dichte)} g/mL`;
+}
+function updButtons(){
+  const lock=busy||autoRun;
+  $('btnZu').disabled = lock||zustand!=='leer';
+  $('btnSch').disabled = lock||zustand!=='zugegeben';
+  $('btnReset').disabled = lock;
+  $('selKlasse').disabled = lock; $('selStoff').disabled = lock;
+  $('btnRun').textContent = autoRun ? '■ Stopp' : '▶ Klasse durchlaufen';
+  $('btnRun').disabled = busy && !autoRun;
+  $('predW').disabled = $('predB').disabled = (zustand==='ergebnis'||zustand==='kombiniert');
+  $('btnInW').disabled = $('btnInB').disabled = lock||zustand!=='ergebnis';
+}
+function updStatus(){
+  const pred=$('optPred').checked && !autoRun;
+  const t={leer:'Wähle einen Stoff und klicke auf „Zugeben“. In jeder Spritze (5 mL) befindet sich 1 mL Lösemittel.',
+    zugegeben: pred ? 'Je 1 mL Stoff wurde zugegeben. Gib zuerst deine Vorhersage ab, dann klicke auf „Schütteln“.' : 'Je 1 mL Stoff wurde zugegeben – noch nicht geschüttelt, die Flüssigkeiten liegen übereinander. Klicke auf „Schütteln“.',
+    ergebnis:'Ergebnis nach dem Schütteln und Absetzen. Betrachte die Teilchenebene – danach kannst du mit ③ den Inhalt beider Spritzen in einer Spritze vereinen.',
+    kombiniert:`Beide Inhalte befinden sich jetzt in Spritze ${kombiZiel==='wasser'?'①':'②'}. Wo liegt die Phasengrenze – und worin hat sich der Stoff besser gelöst?`}[zustand]||'';
+  $('status').textContent=t;
+}
+function updInfo(){
+  [['wasser','infoW'],['benzin','infoB']].forEach(([k,id])=>{ if(!$(id).hidden) $(id).innerHTML=tipify(infoText(k)); });
+}
+
+function resetAll(){
+  zustand='leer';
+  for(const k in SP){const sd=SP[k]; sd.layers=[{l1:LM[k].name,l2:'',col:LM[k].farbe,vol:1}]; sd.emul=0; sd.shake=0; sd.drops=[]; sd.capA=1;}
+  HAHN.alpha=0; HAHN.flow=0;
+  welten.forEach(w=>w.start());
+  $('predW').value=''; $('predB').value='';
+  ['obsW','obsB'].forEach(id=>$(id).textContent='–');
+  ['erkW','erkB','fbW','fbB'].forEach(id=>{$(id).innerHTML='';$(id).className='';});
+  kombiZiel=null; $('kombiBox').hidden=true;
+  zeigeTeilchen('wasser',false); zeigeTeilchen('benzin',false);
+  updSteckbrief(); updButtons(); updStatus(); updInfo(); aktion();
+}
+
+async function zugeben(){
+  if(busy||zustand!=='leer') return;
+  aktion(); busy=true; updButtons();
+  const s=aktStoff();
+  for(const k in SP){
+    const sd=SP[k], lp={l1:LM[k].name,l2:'',col:LM[k].farbe,vol:1}, st={l1:s.name,l2:'(zugegeben)',col:STOFF_FARBE,vol:0};
+    sd.layers = s.dichte<LM[k].dichte ? [lp,st] : [st,lp]; sd.stL=st;
+  }
+  welten.forEach(w=>w.stoffZu(s));
+  await tween(1500,p=>{const e=ease(p); for(const k in SP) SP[k].stL.vol=e;});
+  zustand='zugegeben'; busy=false; updButtons(); updStatus(); updInfo();
+}
+
+async function schuetteln(){
+  if(busy||zustand!=='zugegeben') return;
+  if($('optPred').checked && !autoRun && (!$('predW').value||!$('predB').value)){
+    $('status').textContent='Bitte zuerst für beide Spritzen eine Vorhersage auswählen!'; return;
+  }
+  aktion(); busy=true; updButtons();
+  const s=aktStoff();
+  for(const k in SP){
+    const sd=SP[k]; sd.misch=s[k]==='misch'; sd.emulMax=sd.misch?0.55:1;
+    sd.endL=endSchichten(k,s);
+    sd.emulCol=mix(mix(LM[k].farbe,STOFF_FARBE,.5),[240,240,244],.45);
+    sd.dropCol=sd.misch?[236,238,242]:[212,217,225];
+    sd.drops=Array.from({length:sd.misch?8:28},()=>({x:Math.random()*2-1,y:Math.random(),r:(2+Math.random()*3.5).toFixed(1),ph:Math.random()*6.28}));
+  }
+  welten.forEach(w=>w.layout('shake'));
+  await tween(1400,p=>{
+    for(const k in SP){const sd=SP[k]; sd.emul=Math.min(1,p*3)*sd.emulMax; sd.shake=Math.sin(p*Math.PI*9)*8*(1-p*0.4);}
+  });
+  for(const k in SP){SP[k].shake=0; SP[k].layers=SP[k].endL;}
+  welten.forEach(w=>w.layout('ergebnis'));
+  await tween(2600,p=>{for(const k in SP) SP[k].emul=(1-ease(p))*SP[k].emulMax;});
+  for(const k in SP) SP[k].emul=0;
+  zustand='ergebnis'; busy=false;
+  zeigeErgebnis(s); updButtons(); updStatus(); updInfo();
+}
+
+/* ③ Inhalt beider Spritzen in einer Spritze vereinen */
+async function zusammengeben(ziel){
+  if(busy||autoRun||zustand!=='ergebnis') return;
+  aktion(); busy=true; updButtons();
+  const s=aktStoff(), quelle = ziel==='wasser'?'benzin':'wasser', sq=SP[quelle], sz=SP[ziel];
+  // 1. Umfüllen
+  const q0=sq.layers.map(l=>l.vol), qv=q0.reduce((a,b)=>a+b,0);
+  const qCol=sq.layers.length>1?mix(sq.layers[0].col,sq.layers[1].col,.5):sq.layers[0].col;
+  const inc={l1:'Inhalt aus',l2:`Spritze ${sq.num}`,col:qCol,vol:0};
+  // a) Verschlusskappen ab, Dreiwegehahn mit Schläuchen anschließen
+  const zu = quelle==='wasser'?180:0;          // Hebel zeigt auf die abgebende Spritze = geschlossen
+  HAHN.src=quelle; HAHN.angle=zu; HAHN.flow=0; HAHN.col=qCol;
+  await tween(1000,p=>{ sq.capA=sz.capA=1-p; HAHN.alpha=ease(p); });
+  // b) Hahn öffnen (Hebel zeigt auf den unteren, verschlossenen Anschluss)
+  await tween(700,p=>{ HAHN.angle=zu+(90-zu)*ease(p); });
+  // c) Kolben der abgebenden Spritze hineindrücken – Flüssigkeit strömt durch den Hahn
+  sz.layers=sz.layers.map(l=>Object.assign({},l)).concat([inc]);
+  HAHN.flow=1;
+  await tween(2400,p=>{const e=ease(p); sq.layers.forEach((l,i)=>l.vol=q0[i]*(1-e)); inc.vol=qv*e;});
+  HAHN.flow=0; sq.layers=[];
+  // d) Hahn schließen, abnehmen, Kappen wieder aufsetzen
+  await tween(700,p=>{ HAHN.angle=90+(zu-90)*ease(p); });
+  await tween(900,p=>{ HAHN.alpha=1-ease(p); sq.capA=sz.capA=p; });
+  HAHN.alpha=0;
+  WELT[quelle].leeren(); WELT[quelle].leerText=`Der Inhalt wurde in Spritze ${sz.num} gegeben.`;
+  // 2. Schütteln
+  const Vw=1+2*s.fw, Vb=4-Vw;
+  sz.endL=[{l1:'Wasser',l2:'Phase',col:mix(LM.wasser.farbe,STOFF_FARBE,(2*s.fw/Vw)*.6),vol:Vw},
+           {l1:'Benzin',l2:'Phase',col:mix(LM.benzin.farbe,STOFF_FARBE,(2*(1-s.fw)/Vb)*.6),vol:Vb}];
+  sz.misch=false; sz.emulMax=1; sz.dropCol=[212,217,225];
+  sz.emulCol=mix(mix(LM.wasser.farbe,LM.benzin.farbe,.5),[240,240,244],.45);
+  sz.drops=Array.from({length:30},()=>({x:Math.random()*2-1,y:Math.random(),r:(2+Math.random()*3.5).toFixed(1),ph:Math.random()*6.28}));
+  WELT[ziel].kombiniere(s);
+  await tween(1400,p=>{ sz.emul=Math.min(1,p*3); sz.shake=Math.sin(p*Math.PI*9)*8*(1-p*0.4); });
+  sz.shake=0; sz.layers=sz.endL;
+  WELT[ziel].layout('kombi');
+  await tween(2800,p=>{ sz.emul=1-ease(p); });
+  sz.emul=0;
+  zustand='kombiniert'; kombiZiel=ziel; busy=false;
+  $('kombiBox').hidden=false;
+  $('obsK').textContent=kombiBeob(s,ziel);
+  $('erkK').innerHTML=tipify(kombiErkl(s));
+  kombiRes.add(s.id); zeichneTabelle();
+  updButtons(); updStatus(); updInfo();
+}
+
+function zeigeErgebnis(s){
+  [['wasser','obsW','erkW','fbW','predW'],['benzin','obsB','erkB','fbB','predB']].forEach(([k,o,e,f,p])=>{
+    $(o).textContent=beobachtung(k,s);
+    $(e).innerHTML=tipify(erklaerung(s,k));
+    const v=$(p).value;
+    if($('optPred').checked && v){
+      const ok=LOES[s[k]].pred.includes(v);
+      $(f).className=ok?'fb-ok':'fb-no';
+      $(f).textContent= ok ? `✔ Deine Vorhersage („${PRED_TXT[v]}“) stimmt. Genauer: ${LOES[s[k]].lang}.`
+                           : `✘ Deine Vorhersage („${PRED_TXT[v]}“) stimmt nicht. Richtig: ${LOES[s[k]].lang}.`;
+    } else {$(f).textContent='';$(f).className='';}
+  });
+  ergebnisse.set(s.id,s);
+  zeichneTabelle(); zeichneDiagramm();
+}
+
+function zeichneTabelle(){
+  $('tbody').innerHTML=[...ergebnisse.values()].map(s=>
+    `<tr><td>${s.name}</td><td>${KLASSEN[s.klasse].name}</td><td>${LOES[s.wasser].t}</td><td>${LOES[s.benzin].t}</td><td>${kombiRes.has(s.id)?besserIn(s):'– (③ noch nicht durchgeführt)'}</td></tr>`).join('')
+    || '<tr><td colspan="5" style="color:#566074">Noch keine Versuche durchgeführt.</td></tr>';
+}
+
+function zeichneDiagramm(){
+  const kl=$('selKlasse').value, list=STOFFE.filter(s=>s.klasse===kl);
+  const W=540,H=260,x0=92,y0=200,hMax=160,gw=(W-x0-10)/list.length, bw=Math.min(28,gw*0.28);
+  const stufen=['nicht mischbar','kaum löslich','begrenzt','gut löslich','mischbar'];
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Löslichkeit in Wasser und Benzin für ${KLASSEN[kl].name}">
+    <defs><pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="6" height="6" fill="#e9b52a"/><line x1="0" y1="0" x2="0" y2="6" stroke="#9a6d00" stroke-width="2"/></pattern></defs>`;
+  stufen.forEach((t,i)=>{const y=y0-i/4*hMax;
+    s+=`<line x1="${x0}" x2="${W-10}" y1="${y}" y2="${y}" stroke="${i===0?'#8a93a3':'#e3e6ec'}"/>`;
+    s+=`<text x="${x0-6}" y="${y+4}" font-size="11" text-anchor="end" fill="#4a5366">${t}</text>`;});
+  list.forEach((st,i)=>{
+    const gx=x0+gw*i+gw/2;
+    if(ergebnisse.has(st.id)){
+      const hw=Math.max(4,LOES[st.wasser].score/4*hMax), hb=Math.max(4,LOES[st.benzin].score/4*hMax);
+      s+=`<rect x="${gx-bw-2}" y="${y0-hw}" width="${bw}" height="${hw}" fill="#3f86de"><title>${st.name} in Wasser: ${LOES[st.wasser].t}</title></rect>`;
+      s+=`<rect x="${gx+2}" y="${y0-hb}" width="${bw}" height="${hb}" fill="url(#hatch)" stroke="#9a6d00"><title>${st.name} in Benzin: ${LOES[st.benzin].t}</title></rect>`;
+    } else {
+      s+=`<rect x="${gx-bw-2}" y="${y0-50}" width="${2*bw+4}" height="50" fill="none" stroke="#aeb5c2" stroke-dasharray="4 3"/>`;
+      s+=`<text x="${gx}" y="${y0-20}" font-size="16" text-anchor="middle" fill="#8a93a3">?</text>`;
+    }
+    const cur=st.id===$('selStoff').value;
+    s+=`<text x="${gx}" y="${y0+17}" font-size="11.5" text-anchor="middle" fill="#1c2230" font-weight="${cur?700:400}">${st.name.replace(' (Aceton)','')}</text>`;
+    s+=`<text x="${gx}" y="${y0+31}" font-size="10.5" text-anchor="middle" fill="#566074">${st.nAlk} C im Alkylteil</text>`;
+  });
+  s+=`<rect x="${x0}" y="${H-16}" width="12" height="12" fill="#3f86de"/><text x="${x0+17}" y="${H-6}" font-size="11.5">in Wasser</text>`;
+  s+=`<rect x="${x0+100}" y="${H-16}" width="12" height="12" fill="url(#hatch)" stroke="#9a6d00"/><text x="${x0+117}" y="${H-6}" font-size="11.5">in Benzin</text>`;
+  s+='</svg>';
+  $('chart').innerHTML=s;
+}
+
+async function klasseDurchlaufen(){
+  if(autoRun){autoRun=false; updButtons(); return;}
+  autoRun=true; updButtons();
+  const list=STOFFE.filter(s=>s.klasse===$('selKlasse').value);
+  for(const s of list){
+    if(!autoRun) break;
+    $('selStoff').value=s.id; resetAll(); zeichneDiagramm();
+    await sleep(500); if(!autoRun) break;
+    await zugeben(); await sleep(600); if(!autoRun) break;
+    await schuetteln(); await sleep(2500);
+  }
+  autoRun=false; updButtons(); updStatus();
+}
+
+/* ---------- Ereignisse ---------- */
+$('selKlasse').addEventListener('change',()=>{fuelleStoffe(); resetAll(); zeichneDiagramm();});
+$('selStoff').addEventListener('change',()=>{resetAll(); zeichneDiagramm();});
+$('btnZu').addEventListener('click',zugeben);
+$('btnSch').addEventListener('click',schuetteln);
+$('btnReset').addEventListener('click',resetAll);
+$('btnInW').addEventListener('click',()=>zusammengeben('wasser'));
+// Klick auf die Lupe an einer Spritze blendet die Teilchenebene ein/aus
+// (pointerdown, weil die Spritzen-Grafik in jedem Frame neu gezeichnet wird)
+$('syr').addEventListener('pointerdown',e=>{
+  const l=e.target.closest('[data-lupe]'); if(!l) return;
+  zeigeTeilchen(l.dataset.lupe,true);
+});
+document.querySelectorAll('button.sw').forEach(b=>b.addEventListener('click',()=>zeigeTeilchen(b.dataset.k,!sichtbar[b.dataset.k])));
+$('btnZurueck').addEventListener('click',()=>{zeigeTeilchen('wasser',false); zeigeTeilchen('benzin',false);});
+document.addEventListener('keydown',e=>{ if(e.key==='Escape' && (sichtbar.wasser||sichtbar.benzin)) $('btnZurueck').click(); });
+$('btnInB').addEventListener('click',()=>zusammengeben('benzin'));
+$('btnRun').addEventListener('click',klasseDurchlaufen);
+$('btnTab').addEventListener('click',()=>{ergebnisse.clear(); kombiRes.clear(); zeichneTabelle(); zeichneDiagramm();});
+$('btnPause').addEventListener('click',()=>{pausiert=!pausiert; autoPausiert=false; letzteAktion=performance.now(); updPause(); kick();});
+[['optHb','hb'],['optDip','dip'],['optDeb','deb'],['optVdw','vdw'],['optLad','ladung'],['optSch','schatten']].forEach(([id,key])=>{
+  $(id).addEventListener('change',e=>{opt[key]=e.target.checked; aktion();});
+});
+$('optPred').addEventListener('change',e=>{$('predRow').hidden=!e.target.checked; updStatus();});
+document.querySelectorAll('button.info').forEach(b=>b.addEventListener('click',()=>{
+  const k=b.dataset.k, box=$(k==='wasser'?'infoW':'infoB'), open=box.hidden;
+  box.hidden=!open; b.setAttribute('aria-expanded',String(open));
+  if(open) box.innerHTML=tipify(infoText(k));
+  passeTeilchenAn();
+}));
+/* Spritzen-Grafik so begrenzen, dass Schaltflächen und Spritzen ohne Scrollen sichtbar sind */
+function passeHoeheAn(){
+  const svg=$('syr'), card=$('realCard');
+  const top=svg.getBoundingClientRect().top+window.scrollY;
+  const unten=card.getBoundingClientRect().bottom-svg.getBoundingClientRect().bottom;
+  svg.style.maxHeight=Math.max(280, window.innerHeight-top-unten-14)+'px';
+}
+/* Teilchenfenster so groß wie möglich in die Vollbild-Ebene einpassen (neben- oder untereinander) */
+function passeTeilchenAn(){
+  const vis=['wasser','benzin'].filter(k=>sichtbar[k]);
+  if(!$('teilCard').classList.contains('offen') || !vis.length){ kick(); return; }
+  const area=$('teilFenster'), W=area.clientWidth, H=area.clientHeight, n=vis.length, gap=14;
+  const kopf=60, rand=26;                                  // Fensterkopf + Innenabstände
+  const breite=(w,h)=>Math.max(120, Math.min(w-rand, (h-kopf)*440/300));
+  const neben=breite((W-gap*(n-1))/n, H), unter=breite(W, (H-gap*(n-1))/n);
+  area.style.flexDirection = neben>=unter ? 'row' : 'column';
+  const cw=Math.max(neben,unter);
+  vis.forEach(k=>{ WELT[k].cv.style.width=cw.toFixed(0)+'px'; WELT[k].resize(); });
+  kick();
+}
+window.addEventListener('resize',()=>{passeHoeheAn(); welten.forEach(w=>w.resize()); passeTeilchenAn();});
+
+/* ---------- Start ---------- */
+fuelleKlassen(); fuelleStoffe(); passeHoeheAn();
+welten.forEach(w=>w.resize());
+resetAll(); zeichneTabelle(); zeichneDiagramm();
+</script>
+</body>
+</html>
