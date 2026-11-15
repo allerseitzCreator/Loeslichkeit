@@ -25,7 +25,7 @@ select{padding:6px 6px;border:1px solid #aeb5c2;border-radius:6px;background:#ff
 button{padding:7px 10px;border-radius:6px;border:1px solid #aeb5c2;background:#fff;cursor:pointer;color:var(--ink)}
 button.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
 button:disabled,select:disabled{opacity:.45;cursor:not-allowed}
-a.btnlink{display:inline-block;padding:7px 10px;border-radius:6px;border:1px solid #2b56c6;background:#eef3fd;color:#1f3f96;
+button.btnlink,a.btnlink{display:inline-block;cursor:pointer;font-family:inherit;padding:7px 10px;border-radius:6px;border:1px solid #2b56c6;background:#eef3fd;color:#1f3f96;
   font-size:.9rem;font-weight:600;text-decoration:none;line-height:1.45}
 a.btnlink:hover{background:#dfe8fb}
 a.btnlink:focus-visible{outline:3px solid #f0b400;outline-offset:2px}
@@ -100,6 +100,77 @@ th{background:#f0f2f6}
   width:max-content;max-width:280px;white-space:normal;box-shadow:0 4px 14px rgba(0,0,0,.25);pointer-events:none}
 .tip:hover::before,.tip:focus::before{content:"";position:absolute;left:12px;top:calc(100% + 1px);z-index:50;
   border:5px solid transparent;border-bottom-color:#1c2230;pointer-events:none}
+
+/* ===================== Digitales Arbeitsblatt ===================== */
+#abCard{position:fixed;inset:0;z-index:110;background:#e6e9ee;display:flex;flex-direction:column;transform:translateY(100%);visibility:hidden;
+  transition:transform .5s cubic-bezier(.2,.8,.2,1),visibility 0s linear .5s}
+#abCard.offen{transform:none;visibility:visible;transition:transform .5s cubic-bezier(.2,.8,.2,1),visibility 0s}
+.ab-tools{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;padding:8px 14px;background:#fff;border-bottom:1px solid var(--line)}
+.ab-tools > strong{font-size:1.05rem}
+.ab-grp{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+.ab-rechts{margin-left:auto}
+.ab-tools button{padding:5px 9px;font-size:.88rem}
+.ab-tools button[aria-pressed="true"]{background:#e3ebfb;border-color:var(--accent);font-weight:600}
+.ab-col i{display:inline-block;width:15px;height:15px;border-radius:50%;vertical-align:-3px}
+.ab-finger{font-size:.82rem;color:var(--muted);display:flex;align-items:center;gap:4px;margin-left:4px}
+.ab-hinweis{font-size:.82rem;color:var(--muted);padding:5px 14px;background:#f7f8fa;border-bottom:1px solid var(--line)}
+.ab-scroll{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding:16px 0 40px}
+.ab-wrap{margin:0 auto;position:relative}
+.ab-sheet{position:absolute;left:0;top:0;width:820px;background:#fff;box-shadow:0 2px 14px rgba(0,0,0,.16);padding:30px 40px 40px 52px;
+  transform-origin:0 0;font-family:Aptos,Inter,"Segoe UI",system-ui,sans-serif;font-size:14.5px;line-height:1.45;color:#000}
+#abInk{position:absolute;left:0;top:0;pointer-events:none;z-index:5}
+#abCard.stift #abInk{pointer-events:auto;cursor:crosshair;touch-action:pan-x pan-y}
+#abCard.stift.finger #abInk{touch-action:none}
+#abCard.stift .ab-sheet textarea,#abCard.stift .ab-sheet input{pointer-events:none}
+.ab-kopf{font-size:15px;margin-bottom:14px}
+.ab-k1{display:grid;grid-template-columns:185px 1fr auto;border-bottom:1px solid #a6a6a6;padding-bottom:2px}
+.ab-k2{display:grid;grid-template-columns:120px 1fr;padding-top:2px}
+.ab-namen{display:flex;gap:16px;margin:0 0 12px}
+.ab-namen label{display:flex;align-items:baseline;gap:6px;flex:1}
+.ab-namen label:first-child{flex:2}
+.ab-namen input{flex:1;min-width:0;width:0;border:none;border-bottom:1px dotted #808080;font:inherit;background:transparent;padding:2px 2px}
+.ab-sheet h3{font-size:14.5px;margin:18px 0 6px}
+.ab-sheet h3.ab-t0{margin-top:4px}
+.ab-sheet h4{font-size:14.5px;margin:10px 0 4px}
+.ab-sheet .ab-abst{margin-top:26px}
+.ab-txt{margin:0 0 8px;text-align:justify}
+.ab-ol{margin:0 0 8px;padding-left:22px}
+.ab-ol li{margin:3px 0}
+.ab-ol > li::marker{font-weight:700}
+.ab-abc{list-style:lower-alpha;padding-left:20px}
+.ab-abc > li::marker{font-weight:400;content:counter(list-item, lower-alpha) ") "}
+.ab-tlab{font-weight:700;font-size:13px;margin:10px 0 3px 20px}
+.ab-tab{border-collapse:collapse;width:calc(100% - 20px);margin-left:20px;table-layout:fixed;font-size:13px}
+.ab-tab th,.ab-tab td{border:1px solid #808080;padding:2px 4px;text-align:center;vertical-align:middle}
+.ab-tab th{background:#DBE5F1;font-weight:700;padding:4px}
+.ab-tab td.ab-name{height:36px}
+.ab-tab textarea{display:block;width:100%;min-height:32px;border:none;resize:none;font:inherit;font-size:13px;background:transparent;text-align:center;padding:4px 2px;overflow:hidden}
+.ab-hoch textarea{min-height:76px;text-align:left}
+.ab-hint{margin:4px 0 0 20px;font-style:italic;font-size:13.5px;color:#222}
+.ab-lin{display:block;width:100%;margin:4px 0 10px;border:none;resize:vertical;font:inherit;font-size:15px;line-height:30px;padding:0 4px;
+  background:transparent repeating-linear-gradient(to bottom,transparent 0,transparent 29px,#b9b9b9 29px,#b9b9b9 30px);background-attachment:local}
+.ab-sheet textarea:focus,.ab-sheet input:focus{outline:2px solid #9db4e8;outline-offset:1px;background-color:rgba(219,229,241,.25)}
+.ab-skizze{height:300px;border:1px solid #808080;margin:6px 0 4px}
+.ab-info{border:2px solid #4F81BD;background:#EEF3FA;padding:10px 14px}
+.ab-ww{display:grid;grid-template-columns:72px 1fr;gap:8px;align-items:start;margin:5px 0}
+.ab-ww svg{margin-top:5px}
+.ab-merk{border:2px solid #C0504D;background:#F2F6FB;padding:10px 14px;margin:18px 0 8px}
+.ab-merk p{margin:6px 0;line-height:2.1;text-align:left}
+.ab-gap{border:none;border-bottom:1px solid #000;background:transparent;font:inherit;padding:0 3px;text-align:center}
+body.ov-offen #abCard.offen{overflow:hidden}
+@media print{
+  @page{size:A4;margin:10mm}
+  body{background:#fff}
+  body > header, main > *:not(#abCard){display:none!important}
+  main{display:block;padding:0;max-width:none}
+  #abCard{position:static;transform:none;visibility:visible;display:block;background:#fff;transition:none}
+  .ab-tools,.ab-hinweis{display:none}
+  .ab-scroll{overflow:visible;padding:0}
+  .ab-wrap{width:auto!important;height:auto!important}
+  .ab-sheet{position:relative;transform:none!important;box-shadow:none;zoom:.86}
+  .ab-lin{resize:none}
+  .ab-sheet textarea:focus,.ab-sheet input:focus{outline:none;background:none}
+}
 @media (max-width:950px){ main{grid-template-columns:1fr} .erg-grid,.two{grid-template-columns:1fr} #realCard{flex-basis:100%} }
 </style>
 </head>
@@ -117,8 +188,7 @@ th{background:#f0f2f6}
     <button id="btnInW" class="primary" title="Inhalt beider Spritzen über den Dreiwegehahn in Spritze ① geben">③ in Spritze ①</button>
     <button id="btnInB" class="primary" title="Inhalt beider Spritzen über den Dreiwegehahn in Spritze ② geben">③ in Spritze ②</button>
     <button id="btnReset">↺ Zurücksetzen</button>
-    <a id="btnAB" class="btnlink" href="Arbeitsblatt_Loeslichkeit.pdf" target="_blank" rel="noopener"
-       title="Arbeitsblatt zur Simulation öffnen (PDF zum Ausfüllen mit Tastatur oder Stift)">📄 Arbeitsblatt</a>
+    <button id="btnAB" class="btnlink" type="button" title="Arbeitsblatt öffnen – ausfüllbar mit Tastatur oder Stift">📄 Arbeitsblatt</button>
   </div>
   <div class="toggles">
     <label><input type="checkbox" id="optPred"> Vorhersagemodus</label>
@@ -209,6 +279,119 @@ th{background:#f0f2f6}
       <div class="row-btns"><button id="btnRun">▶ Klasse durchlaufen</button></div>
       <div id="chart"></div>
       <p class="note">Qualitative Einstufung der getesteten Stoffe der gewählten Stoffklasse. „?“ = noch nicht getestet.</p>
+    </div>
+  </section>
+  <!-- ===================== Digitales Arbeitsblatt (Vollbild-Ebene) ===================== -->
+  <section id="abCard" role="dialog" aria-modal="true" aria-labelledby="abTitel" aria-hidden="true">
+    <div class="ab-tools" role="toolbar" aria-label="Werkzeuge Arbeitsblatt">
+      <strong id="abTitel">Arbeitsblatt</strong>
+      <span class="ab-grp">
+        <button type="button" class="ab-mode" data-mode="tasten" aria-pressed="true">⌨ Tastatur</button>
+        <button type="button" class="ab-mode" data-mode="stift" aria-pressed="false">✏ Stift</button>
+      </span>
+      <span class="ab-grp ab-penonly">
+        <button type="button" class="ab-col" data-col="#1c2230" aria-pressed="true" title="Schwarz"><i style="background:#1c2230"></i></button>
+        <button type="button" class="ab-col" data-col="#1d5fd0" aria-pressed="false" title="Blau"><i style="background:#1d5fd0"></i></button>
+        <button type="button" class="ab-col" data-col="#c0392b" aria-pressed="false" title="Rot"><i style="background:#c0392b"></i></button>
+        <button type="button" class="ab-col" data-col="#1f8a45" aria-pressed="false" title="Grün"><i style="background:#1f8a45"></i></button>
+        <button type="button" class="ab-col" data-col="radierer" aria-pressed="false" title="Radierer">⌫ Radierer</button>
+        <button type="button" id="abUndo" title="Letzten Strich rückgängig machen">↶</button>
+        <button type="button" id="abClear" title="Alle Zeichnungen löschen">🗑</button>
+        <label class="ab-finger"><input type="checkbox" id="abFinger"> mit Finger zeichnen</label>
+      </span>
+      <span class="ab-grp ab-rechts">
+        <button type="button" id="abPrint" title="Ausgefülltes Arbeitsblatt drucken oder als PDF speichern">🖨 Drucken / PDF</button>
+        <button type="button" id="abReset" title="Alle Eingaben und Zeichnungen löschen">Leeren</button>
+        <button type="button" id="abZurueck" class="primary">✕ Zurück zur Simulation</button>
+      </span>
+    </div>
+    <div class="ab-hinweis" id="abHinweis">⌨ <b>Tastatur:</b> in die Felder tippen (auf dem iPad geht auch Handschrift mit „Kritzeln“). ✏ <b>Stift:</b> überall auf das Blatt schreiben und zeichnen – mit dem Finger wird gescrollt. Deine Eingaben werden in diesem Browser gespeichert.</div>
+    <div class="ab-scroll" id="abScroll">
+      <div class="ab-wrap" id="abWrap">
+        <article class="ab-sheet" id="abSheet">
+          <div class="ab-kopf">
+            <div class="ab-k1"><span>Chemie Klasse 10</span><span>Organische Chemie</span><span class="r">Stz</span></div>
+            <div class="ab-k2"><span>Aufgaben:</span><span>Löslichkeit organischer Stoffe</span></div>
+          </div>
+          <div class="ab-namen">
+            <label>Name: <input class="abf" data-id="name" autocomplete="off"></label>
+            <label>Klasse: <input class="abf" data-id="klasse" autocomplete="off"></label>
+            <label>Datum: <input class="abf" data-id="datum" autocomplete="off"></label>
+          </div>
+          <h3 class="ab-t0">Löslichkeit – mischen sich organische Stoffe mit Wasser oder mit Benzin?</h3>
+          <p class="ab-txt">Manche organischen Stoffe mischen sich mit Wasser, andere mit Benzin, manche mit beidem. Mit der Simulation untersuchst du, wovon die Löslichkeit eines Stoffs abhängt und welche zwischenmolekularen Wechselwirkungen dafür verantwortlich sind.</p>
+
+          <h3>Aufgabe 1: Durchführung der Simulation</h3>
+          <p class="ab-txt">Die Simulation zeigt die <b>Stoffebene</b> (zwei 5-mL-Spritzen mit Wasser bzw. Benzin). Ein Klick auf die <b>Lupe</b> an einer Spritze öffnet die <b>Teilchenebene</b> mit einer Legende der Wechselwirkungen. Darunter findest du Ergebnisse, Merksatz, Ergebnistabelle und den Vergleich der Kettenlänge.</p>
+          <h4>Teil A: Mischversuche mit Wasser und Benzin</h4>
+          <ol class="ab-ol">
+            <li>Wähle unter <b>„Stoffklasse“</b> und <b>„Stoff“</b> den ersten Stoff aus Tabelle A. In Spritze ① befindet sich <b>1 mL Wasser</b>, in Spritze ② <b>1 mL Benzin</b>.</li>
+            <li>Klicke auf <b>„① Zugeben“</b>: In jede Spritze wird <b>1 mL</b> des Stoffs gegeben.</li>
+            <li>Klicke auf <b>„② Schütteln“</b> und warte, bis sich der Inhalt abgesetzt hat. Notiere in Tabelle A, ob <b>eine</b> oder <b>zwei Phasen</b> entstehen (Stoffebene).</li>
+            <li>Klicke auf die <b>Lupe</b> an jeder Spritze. Notiere, welche Wechselwirkungen zwischen den Molekülen des Stoffs und den Wassermolekülen bzw. den Molekülen des Benzins dargestellt sind (Teilchenebene). Über die Legende kannst du einzelne Wechselwirkungen ein- und ausblenden.</li>
+            <li>Klicke auf <b>„Zurücksetzen“</b> und wiederhole den Versuch mit den übrigen Stoffen aus Tabelle A.</li>
+          </ol>
+          <div class="ab-tlab">Tabelle A</div>
+          <table class="ab-tab" data-tab="A">
+            <colgroup><col style="width:15%"><col style="width:14%"><col style="width:14%"><col style="width:28.5%"><col style="width:28.5%"></colgroup>
+            <tr><th></th><th colspan="2">Stoffebene: eine oder zwei Phasen?</th><th colspan="2">Teilchenebene</th></tr>
+            <tr><th>Stoff</th><th>Spritze ①<br>Wasser</th><th>Spritze ②<br>Benzin</th><th>Wechselwirkungen<br>Stoff – Wasser</th><th>Wechselwirkungen<br>Stoff – Benzin</th></tr>
+          </table>
+          <p class="ab-hint">Hinweis: Die Farben der Flüssigkeiten dienen nur der Veranschaulichung – alle Flüssigkeiten sind farblos.</p>
+
+          <h3>Aufgabe 2: Auswertung Teil A</h3>
+          <ol class="ab-ol ab-abc">
+            <li>Erkläre mithilfe der Wechselwirkungen, warum sich <b>Hexan</b> nicht mit Wasser, aber mit Benzin mischt.<textarea class="abf ab-lin" data-id="a2a" rows="4"></textarea></li>
+            <li>Vergleiche Ethanol, Butan-1-ol und Hexan-1-ol (Diagramm „Vergleich: Kettenlänge“ unter der Simulation). Formuliere eine <b>Je-desto-Regel</b> und begründe sie mit den Wechselwirkungen.<textarea class="abf ab-lin" data-id="a2b" rows="4"></textarea></li>
+            <li>In der Wasser-Spritze liegt die Hexan-Phase <b>oben</b>. Begründe mithilfe der Dichte (ρ(Hexan) = 0,66 g/mL; ρ(Wasser) = 1,00 g/mL).<textarea class="abf ab-lin" data-id="a2c" rows="2"></textarea></li>
+          </ol>
+
+          <h4 class="ab-abst">Teil B: Worin löst sich der Stoff besser – in Wasser oder in Benzin?</h4>
+          <ol class="ab-ol">
+            <li>Führe den Versuch mit <b>Ethanol</b> bis zum Schütteln durch (Teil A, Schritte 1–3).</li>
+            <li>Klicke auf <b>„③ in Spritze ①“</b>. Die Spritzen werden über einen <b>Dreiwegehahn</b> verbunden, der Inhalt beider Spritzen wird in Spritze ① gegeben und erneut geschüttelt.</li>
+            <li>Lies ab, bei welchem Volumen die <b>Phasengrenze</b> liegt, und trage die Werte in Tabelle B ein. Ohne den Stoff läge die Phasengrenze bei 2 mL (1 mL Wasser unten, 1 mL Benzin oben).</li>
+            <li>Wiederhole den Versuch mit den übrigen Stoffen aus Tabelle B.</li>
+          </ol>
+          <div class="ab-tlab">Tabelle B</div>
+          <table class="ab-tab" data-tab="B">
+            <colgroup><col style="width:15%"><col style="width:17%"><col style="width:18%"><col style="width:18%"><col style="width:32%"></colgroup>
+            <tr><th>Stoff</th><th>Phasengrenze<br>in mL</th><th>V(Wasser-Phase)<br>in mL</th><th>V(Benzin-Phase)<br>in mL</th><th>Der Stoff löst sich<br>besser in …</th></tr>
+          </table>
+          <p class="ab-hint">Hinweis: Die Verteilung des Stoffs ist in der Simulation vereinfacht; Volumenänderungen durch gegenseitige Löslichkeit sind vernachlässigt.</p>
+
+          <h3>Aufgabe 3: Auswertung Teil B</h3>
+          <ol class="ab-ol ab-abc">
+            <li>Ethanol mischt sich sowohl mit Wasser als auch mit Benzin. Erkläre, warum es sich nach dem Zusammengeben trotzdem überwiegend in der <b>Wasser-Phase</b> befindet.<textarea class="abf ab-lin" data-id="a3a" rows="4"></textarea></li>
+            <li>Skizziere die Teilchenebene in Spritze ① nach dem Zusammengeben mit Ethanol (Ausschnitt an der Phasengrenze). Zeichne mindestens eine Wasserstoffbrücke und eine London-Wechselwirkung ein. <i>(Zum Zeichnen „✏ Stift“ wählen.)</i>
+              <div class="ab-skizze" aria-label="Fläche für die Skizze"></div></li>
+          </ol>
+
+          <h3 class="ab-abst">Info: Zwischenmolekulare Wechselwirkungen</h3>
+          <div class="ab-info">
+            <div class="ab-ww"><svg width="62" height="12"><line x1="2" y1="6" x2="60" y2="6" stroke="#1d5fd0" stroke-width="2.2" stroke-dasharray="6 4"/></svg><span><b>Wasserstoffbrücken:</b> zwischen einem H-Atom an einem O-Atom (δ+) und einem O-Atom (δ−) eines anderen Moleküls; sehr starke Wechselwirkung.</span></div>
+            <div class="ab-ww"><svg width="62" height="12"><line x1="7" y1="6" x2="55" y2="6" stroke="#c96200" stroke-width="2.8" stroke-dasharray="0.5 5" stroke-linecap="round"/><circle cx="4" cy="6" r="2.6" fill="#c96200"/><circle cx="58" cy="6" r="2.6" fill="none" stroke="#c96200" stroke-width="1.4"/></svg><span><b>Keesom-Wechselwirkungen:</b> Wechselwirkungen zwischen <b>permanenten</b> Dipolen (z. B. zwischen C=O-Gruppen).</span></div>
+            <div class="ab-ww"><svg width="62" height="12"><line x1="2" y1="6" x2="60" y2="6" stroke="#1f8a45" stroke-width="2.4" stroke-dasharray="5 2 1.5 2"/></svg><span><b>Debye-Wechselwirkungen:</b> Wechselwirkungen zwischen <b>permanenten</b> und <b>temporären (induzierten)</b> Dipolen.</span></div>
+            <div class="ab-ww"><svg width="62" height="12"><polyline points="2,6 7,2 12,10 17,2 22,10 27,2 32,10 37,2 42,10 47,2 52,10 57,2 60,6" fill="none" stroke="#6e737d" stroke-width="1.3"/></svg><span><b>London-Wechselwirkungen:</b> Wechselwirkungen zwischen <b>temporären (induzierten)</b> Dipolen. Sie wirken zwischen allen Molekülen und nehmen mit der Kettenlänge zu.</span></div>
+          </div>
+
+          <div class="ab-merk">
+            <b>Merksatz: Löslichkeit</b>
+            <p><input class="abf ab-gap" data-id="m1" size="12"> („wasserliebend“): Polare Gruppen wie –OH, –CHO, C=O, –COOH, –COO–. Sie bilden <input class="abf ab-gap" data-id="m2" size="16"> oder <input class="abf ab-gap" data-id="m3" size="10">-Wechselwirkungen mit Wassermolekülen.</p>
+            <p><input class="abf ab-gap" data-id="m4" size="12"> („fettliebend“): der unpolare Alkylteil. Er bildet <input class="abf ab-gap" data-id="m5" size="10">-Wechselwirkungen mit den Molekülen des Benzins.</p>
+            <p>Je länger der Alkylteil, desto <input class="abf ab-gap" data-id="m6" size="10"> wasserlöslich und desto <input class="abf ab-gap" data-id="m7" size="10"> benzinlöslich ist ein Stoff.</p>
+          </div>
+
+          <h3 class="ab-abst">Aufgabe 4 (Zusatz): Vorhersage</h3>
+          <p class="ab-txt">Schalte in der Simulation den <b>Vorhersagemodus</b> ein. Wähle zwei Stoffe, die du noch nicht untersucht hast, und sage vor dem Schütteln voraus, ob sie sich mit Wasser bzw. Benzin mischen. Begründe deine Vorhersage und vergleiche mit dem Ergebnis.</p>
+          <div class="ab-tlab">Tabelle C</div>
+          <table class="ab-tab ab-hoch" data-tab="C">
+            <colgroup><col style="width:16%"><col style="width:20%"><col style="width:50%"><col style="width:14%"></colgroup>
+            <tr><th>Stoff</th><th>Vorhersage<br>Wasser / Benzin</th><th>Begründung</th><th>Vorhersage<br>richtig?</th></tr>
+          </table>
+          <canvas id="abInk" aria-hidden="true"></canvas>
+        </article>
+      </div>
     </div>
   </section>
 </main>
@@ -1210,9 +1393,141 @@ function passeTeilchenAn(){
 }
 window.addEventListener('resize',()=>{passeHoeheAn(); welten.forEach(w=>w.resize()); passeTeilchenAn();});
 
+/* =====================================================================
+   8. DIGITALES ARBEITSBLATT (Tastatur + Stift, gespeichert im Browser)
+   ===================================================================== */
+const AB_KEY='loeslichkeit_arbeitsblatt_v1', AB_W=820;
+const AB={mode:'tasten', farbe:'#1c2230', strokes:[], finger:false};
+const ink=$('abInk'), ictx=ink.getContext('2d');
+function abTabellen(){
+  const fill=(tab,namen,ncol,pre,frei)=>{
+    const t=document.querySelector(`.ab-tab[data-tab="${tab}"]`);
+    namen.forEach((n,i)=>{
+      const tr=document.createElement('tr');
+      for(let j=0;j<ncol;j++){
+        const td=document.createElement('td');
+        if(j===0&&!frei){ td.textContent=n; td.className='ab-name'; }
+        else{ const ta=document.createElement('textarea'); ta.className='abf'; ta.rows=1; ta.dataset.id=`${pre}_${i}_${j}`;
+              ta.setAttribute('aria-label',`Tabelle ${tab}, Zeile ${i+1}, Spalte ${j+1}`); td.appendChild(ta); }
+        tr.appendChild(td);
+      }
+      t.appendChild(tr);
+    });
+  };
+  fill('A',['Hexan','Ethanol','Butan-1-ol','Hexan-1-ol','Propanon','Ethansäure','Ethylethanoat'],5,'tA',false);
+  fill('B',['Ethanol','Propanon','Butan-1-ol','Hexan','Ethylethanoat'],5,'tB',false);
+  fill('C',['',''],4,'tC',true);
+}
+function abFelder(){ return [...document.querySelectorAll('#abSheet .abf')]; }
+let abTimer=null;
+function abSpeichern(){
+  clearTimeout(abTimer);
+  abTimer=setTimeout(()=>{
+    try{ const f={}; abFelder().forEach(el=>{ if(el.value) f[el.dataset.id]=el.value; });
+         localStorage.setItem(AB_KEY, JSON.stringify({f, s:AB.strokes})); }catch(e){}
+  },300);
+}
+function abLaden(){
+  let d={}; try{ d=JSON.parse(localStorage.getItem(AB_KEY)||'{}')||{}; }catch(e){}
+  abFelder().forEach(el=>{ el.value=(d.f&&d.f[el.dataset.id])||''; });
+  AB.strokes=Array.isArray(d.s)?d.s:[];
+}
+function abHoehen(){ document.querySelectorAll('#abSheet .ab-tab textarea').forEach(t=>{ t.style.height='auto'; t.style.height=Math.max(t.scrollHeight, t.closest('.ab-hoch')?76:32)+'px'; }); }
+function abGroesse(){
+  const sh=$('abSheet'), sc=$('abScroll');
+  const s=Math.min(1,(sc.clientWidth-24)/AB_W);
+  sh.style.transform=s<1?`scale(${s})`:'';
+  const h=sh.offsetHeight;
+  $('abWrap').style.width=(AB_W*s)+'px'; $('abWrap').style.height=(h*s)+'px';
+  let dpr=Math.min(2,window.devicePixelRatio||1);
+  if(AB_W*h*dpr*dpr>15e6) dpr=Math.sqrt(15e6/(AB_W*h));     // Speichergrenze von Safari beachten
+  ink.width=Math.round(AB_W*dpr); ink.height=Math.round(h*dpr);
+  ink.style.width=AB_W+'px'; ink.style.height=h+'px';
+  abZeichneAlles();
+}
+function abStrich(s){
+  const p=s.p; if(!p.length) return;
+  ictx.strokeStyle=s.c; ictx.fillStyle=s.c; ictx.lineCap='round'; ictx.lineJoin='round';
+  if(p.length===1){ ictx.beginPath(); ictx.arc(p[0][0],p[0][1],s.w*0.6,0,6.283); ictx.fill(); return; }
+  for(let i=1;i<p.length;i++){
+    const a=p[i-1], b=p[i]; ictx.lineWidth=s.w*(0.55+0.9*((a[2]+b[2])/2));
+    ictx.beginPath(); ictx.moveTo(a[0],a[1]); ictx.lineTo(b[0],b[1]); ictx.stroke();
+  }
+}
+function abZeichneAlles(){
+  const k=ink.width/AB_W; ictx.setTransform(k,0,0,k,0,0); ictx.clearRect(0,0,AB_W,ink.height/k);
+  AB.strokes.forEach(abStrich);
+}
+function abPunkt(e){
+  const r=ink.getBoundingClientRect(), s=r.width/AB_W, r1=v=>Math.round(v*10)/10;
+  return [r1((e.clientX-r.left)/s), r1((e.clientY-r.top)/s), e.pointerType==='pen'?r1(e.pressure||0.5):0.5];
+}
+function abRadiere(q){
+  const n=AB.strokes.length;
+  AB.strokes=AB.strokes.filter(s=>!s.p.some(p=>Math.hypot(p[0]-q[0],p[1]-q[1])<12));
+  if(AB.strokes.length!==n) abZeichneAlles();
+}
+let abAktiv=null;
+ink.addEventListener('pointerdown',e=>{
+  if(AB.mode!=='stift') return;
+  if(e.pointerType==='touch' && !AB.finger) return;              // Finger scrollt
+  e.preventDefault(); try{ ink.setPointerCapture(e.pointerId); }catch(_){}
+  if(AB.farbe==='radierer'){ abAktiv={rad:true}; abRadiere(abPunkt(e)); return; }
+  abAktiv={c:AB.farbe, w:2.2, p:[abPunkt(e)]}; AB.strokes.push(abAktiv); abStrich(abAktiv);
+});
+ink.addEventListener('pointermove',e=>{
+  if(!abAktiv) return; e.preventDefault();
+  const evs=e.getCoalescedEvents?e.getCoalescedEvents():[e];
+  for(const ev of (evs.length?evs:[e])){
+    const q=abPunkt(ev);
+    if(abAktiv.rad){ abRadiere(q); continue; }
+    const last=abAktiv.p[abAktiv.p.length-1];
+    if(Math.hypot(q[0]-last[0],q[1]-last[1])<0.8) continue;
+    abAktiv.p.push(q); abStrich({c:abAktiv.c,w:abAktiv.w,p:[last,q]});
+  }
+});
+const abEnde=()=>{ if(abAktiv){ abAktiv=null; abSpeichern(); } };
+ink.addEventListener('pointerup',abEnde); ink.addEventListener('pointercancel',abEnde);
+// Apple Pencil soll schreiben, nicht scrollen (Finger scrollt weiterhin)
+const abStylus=e=>{ if(AB.mode==='stift' && [...e.changedTouches].some(t=>t.touchType==='stylus')) e.preventDefault(); };
+ink.addEventListener('touchstart',abStylus,{passive:false}); ink.addEventListener('touchmove',abStylus,{passive:false});
+
+function abModus(m){
+  AB.mode=m; $('abCard').classList.toggle('stift',m==='stift');
+  document.querySelectorAll('.ab-mode').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mode===m)));
+  if(m==='stift' && document.activeElement && document.activeElement.blur) document.activeElement.blur();
+}
+document.querySelectorAll('.ab-mode').forEach(b=>b.addEventListener('click',()=>abModus(b.dataset.mode)));
+document.querySelectorAll('.ab-col').forEach(b=>b.addEventListener('click',()=>{
+  AB.farbe=b.dataset.col; document.querySelectorAll('.ab-col').forEach(x=>x.setAttribute('aria-pressed',String(x===b))); abModus('stift');
+}));
+$('abFinger').addEventListener('change',e=>{ AB.finger=e.target.checked; $('abCard').classList.toggle('finger',AB.finger); });
+$('abUndo').addEventListener('click',()=>{ AB.strokes.pop(); abZeichneAlles(); abSpeichern(); });
+// Löschen mit Sicherheitsabfrage durch zweiten Klick
+function abZweiKlick(btn,text,aktion){
+  let scharf=false, t=null; const orig=btn.textContent;
+  btn.addEventListener('click',()=>{
+    if(!scharf){ scharf=true; btn.textContent=text; t=setTimeout(()=>{scharf=false;btn.textContent=orig;},3000); return; }
+    clearTimeout(t); scharf=false; btn.textContent=orig; aktion();
+  });
+}
+abZweiKlick($('abClear'),'Zeichnungen löschen?',()=>{ AB.strokes=[]; abZeichneAlles(); abSpeichern(); });
+abZweiKlick($('abReset'),'Wirklich alles leeren?',()=>{ AB.strokes=[]; abFelder().forEach(el=>el.value=''); abHoehen(); abGroesse(); abSpeichern(); });
+$('abSheet').addEventListener('input',e=>{ if(e.target.closest('.ab-tab')){ abHoehen(); abGroesse(); } abSpeichern(); });
+$('abPrint').addEventListener('click',()=>{ abModus('tasten'); window.print(); });
+window.addEventListener('afterprint',()=>{ if($('abCard').classList.contains('offen')) abGroesse(); });
+function abOeffnen(an){
+  const c=$('abCard'); c.classList.toggle('offen',an); c.setAttribute('aria-hidden',String(!an));
+  document.body.classList.toggle('ov-offen',an || sichtbar.wasser || sichtbar.benzin);
+  if(an){ abHoehen(); abGroesse(); setTimeout(abGroesse,520); }
+}
+$('btnAB').addEventListener('click',()=>abOeffnen(true));
+$('abZurueck').addEventListener('click',()=>abOeffnen(false));
+document.addEventListener('keydown',e=>{ if(e.key==='Escape' && $('abCard').classList.contains('offen') && document.activeElement.tagName!=='TEXTAREA') abOeffnen(false); });
+window.addEventListener('resize',()=>{ if($('abCard').classList.contains('offen')) abGroesse(); });
+abTabellen(); abLaden();
+
 /* ---------- Start ---------- */
-// Arbeitsblatt-Knopf: online liegt das PDF neben der Simulation; als lokal geöffnete Datei wird die GitHub-Fassung geöffnet
-if(location.protocol==='file:') $('btnAB').href='https://allerseitzcreator.github.io/Loeslichkeit/Arbeitsblatt_Loeslichkeit.pdf';
 fuelleKlassen(); fuelleStoffe(); passeHoeheAn();
 welten.forEach(w=>w.resize());
 resetAll(); zeichneTabelle(); zeichneDiagramm();
