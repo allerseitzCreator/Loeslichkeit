@@ -1211,6 +1211,8 @@ function passeTeilchenAn(){
 window.addEventListener('resize',()=>{passeHoeheAn(); welten.forEach(w=>w.resize()); passeTeilchenAn();});
 
 /* ---------- Start ---------- */
+// Arbeitsblatt-Knopf: online liegt das PDF neben der Simulation; als lokal geöffnete Datei wird die GitHub-Fassung geöffnet
+if(location.protocol==='file:') $('btnAB').href='https://allerseitzcreator.github.io/Loeslichkeit/Arbeitsblatt_Loeslichkeit.pdf';
 fuelleKlassen(); fuelleStoffe(); passeHoeheAn();
 welten.forEach(w=>w.resize());
 resetAll(); zeichneTabelle(); zeichneDiagramm();
